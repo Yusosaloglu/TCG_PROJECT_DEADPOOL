@@ -8,13 +8,13 @@ public:
     CharEvent tick(float dt, Character& other) override;
 
 private:
-    float kataAngle = 0.f;   // katana arm raise angle, degrees (SKILL1)
-    bool  blinkDone = false; // true once teleport repositioning has happened
+    float kataSwing = 0.f;   // degrees: sword-arm forward swing for Skill 1 slash
+    float armSpread = 0.f;   // degrees: arms swung out to the sides for Skill 2 spin
 
     void drawLegs();
     void drawTorso();
     void drawBelt();
     void drawArms();
-    void drawKatana(float armLift);
+    void drawKatana();       // drawn in sword-hand-local space
     void drawHead();
 };

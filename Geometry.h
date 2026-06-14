@@ -125,6 +125,29 @@ inline void drawFlatQuad(float w, float d) {
     glEnd();
 }
 
+// Hand-built UV sphere centred at origin.  NOT gluSphere — vertices and normals
+// are computed in nested latitude/longitude loops and emitted as GL_QUAD_STRIPs,
+// so it counts toward Construction marks.  Wrap with glScalef for ellipsoids
+// (Funko heads, hands, feet, joints, eyes).  slices/stacks ~12–16 look smooth.
+inline void drawSphere(float radius, int slices, int stacks) {
+    for (int i = 0; i < stacks; ++i) {
+        float lat0 = (float)M_PI * (-0.5f + (float) i      / stacks);
+        float lat1 = (float)M_PI * (-0.5f + (float)(i + 1) / stacks);
+        float y0 = sinf(lat0), r0 = cosf(lat0);
+        float y1 = sinf(lat1), r1 = cosf(lat1);
+        glBegin(GL_QUAD_STRIP);
+        for (int j = 0; j <= slices; ++j) {
+            float lng = 2.f * (float)M_PI * (float)j / slices;
+            float xc = cosf(lng), zc = sinf(lng);
+            glNormal3f(xc*r0, y0, zc*r0);
+            glVertex3f(radius*xc*r0, radius*y0, radius*zc*r0);
+            glNormal3f(xc*r1, y1, zc*r1);
+            glVertex3f(radius*xc*r1, radius*y1, radius*zc*r1);
+        }
+        glEnd();
+    }
+}
+
 // Tiled ground plane: 2·size × 2·size centred at origin, tiles×tiles grid.
 // Caller must bind texture and enable GL_TEXTURE_2D before this call.
 inline void drawGroundPlane(float size, int tiles) {

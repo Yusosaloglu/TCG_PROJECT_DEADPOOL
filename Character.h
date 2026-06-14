@@ -33,11 +33,11 @@ public:
     // World position (y=0 is ground level; Y is up)
     float x = 0.f, z = 0.f;
     float facingAngle = 0.f;  // Y-axis rotation, degrees; 0 = facing +z
+    float spinAngle   = 0.f;  // extra Y-rotation during Skill 2 spin (added in draw)
 
     float hp    = MAX_HP;
     bool  alive = true;
 
-    bool  hidden          = false;  // Deadpool teleport: skip all draw calls
     bool  hitRegistered   = false;  // guard: only one hit per skill window
 
     enum Phase {
@@ -62,6 +62,10 @@ public:
     void applyDamage(float dmg);
 
     // True if 'other' is within HIT_RANGE and inside the facing half-cone.
-    // Handles angle wraparound.
+    // Handles angle wraparound.  Used by the directional slash skills.
     bool inHitRange(const Character& other) const;
+
+    // True if 'other' is within HIT_RANGE, ignoring facing direction.
+    // Used by the 360-degree spin skills (omni-directional hit).
+    bool inRange(const Character& other) const;
 };

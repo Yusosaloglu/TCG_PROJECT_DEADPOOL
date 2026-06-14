@@ -36,3 +36,9 @@ bool Character::inHitRange(const Character& other) const {
     while (diff < -180.f) diff += 360.f;
     return fabsf(diff) < HIT_ANGLE_TOL;
 }
+
+bool Character::inRange(const Character& other) const {
+    float dx = other.x - x;
+    float dz = other.z - z;
+    return (dx*dx + dz*dz) < (HIT_RANGE * HIT_RANGE);
+}
