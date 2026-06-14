@@ -1,16 +1,32 @@
-#include <iostream>
+#include "platform_gl.h"
+#include "Game.h"
 
-// TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-int main() {
-    // TIP Press <shortcut actionId="RenameElement"/> when your caret is at the <b>lang</b> variable name to see how CLion can help you rename it.
-    auto lang = "C++";
-    std::cout << "Hello and welcome to " << lang << "!\n";
+static Game world;
 
-    for (int i = 1; i <= 5; i++) {
-        // TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        std::cout << "i = " << i << std::endl;
-    }
+static void displayCB()              { world.draw(); glutSwapBuffers(); }
+static void reshapeCB(int w, int h)  { world.reshape(w, h); }
+static void timerCB(int) {
+    world.tick();
+    glutPostRedisplay();
+    glutTimerFunc(16, timerCB, 0);   // ~60 fps
+}
+static void keyDownCB(unsigned char k, int x, int y) { world.keyDown(k, x, y); }
+static void keyUpCB  (unsigned char k, int x, int y) { world.keyUp  (k, x, y); }
 
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitWindowSize(800, 600);
+    glutCreateWindow("Blind Box Battle - TCG6223");
+
+    world.init();
+
+    glutDisplayFunc(displayCB);
+    glutReshapeFunc(reshapeCB);    // registers gluPerspective — do not remove
+    glutKeyboardFunc(keyDownCB);
+    glutKeyboardUpFunc(keyUpCB);   // freeglut only; enables held-key movement
+
+    glutTimerFunc(16, timerCB, 0);
+    glutMainLoop();
     return 0;
-    // TIP See CLion help at <a href="https://www.jetbrains.com/help/clion/">jetbrains.com/help/clion/</a>. Also, you can try interactive lessons for CLion by selecting 'Help | Learn IDE Features' from the main menu.
 }

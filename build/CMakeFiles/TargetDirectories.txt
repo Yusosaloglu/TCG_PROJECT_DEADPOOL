@@ -1,0 +1,3 @@
+/Users/tifa/CLionProjects/TCG_PROJECT_DEADPOOL/build/CMakeFiles/BlindBoxBattle.dir
+/Users/tifa/CLionProjects/TCG_PROJECT_DEADPOOL/build/CMakeFiles/edit_cache.dir
+/Users/tifa/CLionProjects/TCG_PROJECT_DEADPOOL/build/CMakeFiles/rebuild_cache.dir
