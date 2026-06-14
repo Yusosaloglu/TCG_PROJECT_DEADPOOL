@@ -48,11 +48,17 @@ constexpr float DMG_SPIN       = 26.f;   // either spin attack (omni-directional
 constexpr float CLAW_SLASH_LOW   = 25.f;   // arm pitch at start of Wolverine up-slash
 constexpr float CLAW_SLASH_HIGH  = 155.f;  // arm pitch at top of up-slash
 constexpr float KATA_IDLE_PITCH  = 35.f;   // arm pitch when idle: hands forward, blades up
-constexpr float KATA_RAISE_PITCH = 150.f;  // cocked back before the forward chop
-constexpr float KATA_CHOP_PITCH  = 25.f;   // follow-through of the forward chop
+constexpr float KATA_SLASH_PITCH = 85.f;   // arm held near-horizontal during the slash
+constexpr float KATA_SLASH_YAW   = 75.f;   // half-arc of the left->right horizontal sweep
 constexpr float SPIN_ARMS_OUT    = 90.f;   // arms spread to the sides during spin
 constexpr float CLAW_LEN         = 0.42f;  // extended claw blade length (units)
 
 // Environment
 constexpr float ENV_IMPACT_FLASH_DUR = 0.12f;  // white flash seconds
 constexpr float ENV_RAGE_THRESHOLD   = 0.35f;  // HP fraction (0–1) for rage light
+
+// Sand-wind ambience
+constexpr int   DUST_COUNT  = 150;   // drifting sand particles kept alive
+constexpr float WIND_BASE   = 1.4f;  // base wind speed (units/s, blows +X)
+constexpr float WIND_GUST   = 1.4f;  // extra speed swing from gusts
+constexpr float DUST_ALPHA  = 0.22f; // peak opacity of a dust streak

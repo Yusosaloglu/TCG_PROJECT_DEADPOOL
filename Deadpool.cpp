@@ -26,8 +26,8 @@ static const float TAN[3]   = {0.62f, 0.50f, 0.28f};
 Deadpool::Deadpool() {
     x           =  2.f;
     z           =  0.f;
-    facingAngle =  90.f;  // face toward Wolverine's side
-    kataSwing   =  KATA_IDLE_PITCH;
+    facingAngle = -90.f;  // face -X, toward Wolverine
+    kataYaw     =  0.f;
 }
 
 // ── Legs ──────────────────────────────────────────────────────────────────────
@@ -106,17 +106,21 @@ void Deadpool::drawBackGear() {
     }
 }
 
-// ── Katana (drawn in hand-local space; uprightDeg cancels arm pitch when idle) ─
-void Deadpool::drawKatana(float uprightDeg) {
+// ── Katana (drawn in hand-local space) ────────────────────────────────────────
+// extend=false: blade stands up (idle), uprightDeg cancels the arm pitch.
+// extend=true : blade points out along the arm (forward for the slash, outward
+//               for the spin) — never up through the face.
+void Deadpool::drawKatana(float uprightDeg, bool extend) {
     glPushMatrix();
-    glRotatef(uprightDeg, 1.f, 0.f, 0.f);               // stand blade up when idle (0 while swinging)
+    if (extend) glRotatef(180.f, 1.f, 0.f, 0.f);        // build blade down the arm (-Y local)
+    else        glRotatef(uprightDeg, 1.f, 0.f, 0.f);   // stand blade vertical
 
     glColor3fv(BLACK);                                  // handle (in the fist)
     drawBox(0.05f, 0.24f, 0.05f);
     glColor3f(0.22f, 0.22f, 0.24f);                     // guard
     glPushMatrix(); glTranslatef(0.f, 0.16f, 0.f); drawBox(0.16f, 0.045f, 0.06f); glPopMatrix();
 
-    pushMetal();                                        // blade + tip (specular metal), pointing up
+    pushMetal();                                        // blade + tip (specular metal)
     glColor3f(0.82f, 0.84f, 0.90f);
     glPushMatrix();
     glTranslatef(0.f, 0.68f, 0.f); drawBox(0.045f, 0.98f, 0.02f);
@@ -127,30 +131,40 @@ void Deadpool::drawKatana(float uprightDeg) {
     glPopMatrix();
 }
 
-// ── Arms (both hands grip an upward katana; right arm slashes, both spin out) ──
+// ── Arms (both hands grip a katana; right arm slashes L→R, both spin out) ──────
 void Deadpool::drawArms() {
     bool spinning = (phase == SKILL2_WINDUP || phase == SKILL2_ACTIVE || phase == SKILL2_RECOVERY);
     bool slashing = (phase == SKILL1_WINDUP || phase == SKILL1_ACTIVE || phase == SKILL1_RECOVERY);
 
     for (int s = -1; s <= 1; s += 2) {
-        bool  right     = (s > 0);
-        float pitch     = right ? kataSwing : KATA_IDLE_PITCH;
-        bool  animating = spinning || (right && slashing);   // follow the arm only when moving
-        float upright   = animating ? 0.f : pitch;           // else stand the blade vertical
+        bool right = (s > 0);
+
+        // Pose per phase
+        float spread = armSpread;     // nonzero only during spin
+        float pitch, yaw;
+        bool  extend;
+        if (spinning) {               // arms straight out to the sides, blades outward
+            pitch = 0.f;  yaw = 0.f;  extend = true;
+        } else if (slashing && right) {   // sword arm horizontal, sweeping L→R
+            pitch = KATA_SLASH_PITCH; yaw = kataYaw; extend = true;
+        } else {                      // idle: hand forward, blade standing up
+            pitch = KATA_IDLE_PITCH;  yaw = 0.f;     extend = false;
+        }
 
         glPushMatrix();
-        glTranslatef(s*0.36f, 1.10f, 0.f);              // shoulder pivot
-        glRotatef(s*armSpread, 0.f, 0.f, 1.f);          // Skill 2: arms out
-        glRotatef(-pitch,      1.f, 0.f, 0.f);          // arm pitch (hands forward)
+        glTranslatef(s*0.36f, 1.10f, 0.f);          // shoulder pivot
+        glRotatef(s*spread, 0.f, 0.f, 1.f);         // Skill 2: arms out to sides
+        glRotatef(yaw,      0.f, 1.f, 0.f);         // Skill 1: horizontal sweep
+        glRotatef(-pitch,   1.f, 0.f, 0.f);         // arm pitch
 
-        glColor3fv(RED);                                // red upper arm
+        glColor3fv(RED);                            // red upper arm
         glTranslatef(0.f, -0.20f, 0.f); drawBox(0.18f, 0.34f, 0.22f);
-        glColor3fv(BLACK);                              // black forearm
+        glColor3fv(BLACK);                          // black forearm
         glTranslatef(0.f, -0.30f, 0.f); drawBox(0.16f, 0.30f, 0.20f);
-        glColor3fv(RED);                                // red rounded hand
+        glColor3fv(RED);                            // red rounded hand
         glTranslatef(0.f, -0.20f, 0.f); drawSphere(0.15f, 12, 10);
 
-        drawKatana(upright);                            // BOTH hands hold a katana now
+        drawKatana(pitch, extend);                  // both hands hold a katana
         glPopMatrix();
     }
 }
@@ -207,16 +221,16 @@ CharEvent Deadpool::tick(float dt, Character& other) {
     phaseTimer += dt;
 
     switch (phase) {
-    // ── Skill 1: Katana Slash (forward chop) ──────────────────────────────────
+    // ── Skill 1: Katana Slash (horizontal, left → right) ──────────────────────
     case SKILL1_WINDUP: {
         float t = phaseTimer / WINDUP_KATA;
-        kataSwing = KATA_IDLE_PITCH + (KATA_RAISE_PITCH - KATA_IDLE_PITCH) * t;   // raise/cock
+        kataYaw = KATA_SLASH_YAW * t;                   // cock to the left
         if (phaseTimer >= WINDUP_KATA) { phase = SKILL1_ACTIVE; phaseTimer = 0.f; }
         break;
     }
     case SKILL1_ACTIVE: {
         float u = phaseTimer / ACTIVE_KATA;
-        kataSwing = KATA_RAISE_PITCH + (KATA_CHOP_PITCH - KATA_RAISE_PITCH) * u;  // chop forward
+        kataYaw = KATA_SLASH_YAW - 2.f * KATA_SLASH_YAW * u;   // sweep +yaw → -yaw (L→R)
         if (!hitRegistered && inHitRange(other)) {
             other.applyDamage(DMG_KATANA);
             hitRegistered = true; ev.hitLanded = true; ev.doImpactFlash = true;
@@ -227,16 +241,15 @@ CharEvent Deadpool::tick(float dt, Character& other) {
     }
     case SKILL1_RECOVERY: {
         float r = phaseTimer / RECOV_KATA;
-        kataSwing = KATA_CHOP_PITCH + (KATA_IDLE_PITCH - KATA_CHOP_PITCH) * r;    // return to ready
-        if (phaseTimer >= RECOV_KATA) { phase = IDLE; phaseTimer = 0.f; kataSwing = KATA_IDLE_PITCH; }
+        kataYaw = -KATA_SLASH_YAW * (1.f - r);          // return to centre
+        if (phaseTimer >= RECOV_KATA) { phase = IDLE; phaseTimer = 0.f; kataYaw = 0.f; }
         break;
     }
 
-    // ── Skill 2: Spinning Katana (in place) ───────────────────────────────────
+    // ── Skill 2: Spinning Katana (in place, blades out) ───────────────────────
     case SKILL2_WINDUP: {
         float w = phaseTimer / WINDUP_SPIN;
-        armSpread = SPIN_ARMS_OUT * w;                  // arms out, katana horizontal
-        kataSwing = KATA_IDLE_PITCH * (1.f - w);
+        armSpread = SPIN_ARMS_OUT * w;                  // arms out, katanas swing outward
         spinAngle = 0.f;
         if (phaseTimer >= WINDUP_SPIN) { phase = SKILL2_ACTIVE; phaseTimer = 0.f; }
         break;
@@ -244,7 +257,6 @@ CharEvent Deadpool::tick(float dt, Character& other) {
     case SKILL2_ACTIVE: {
         float a = phaseTimer / ACTIVE_SPIN;
         armSpread = SPIN_ARMS_OUT;
-        kataSwing = 0.f;
         spinAngle = a * 360.f * SPIN_TURNS;             // whirlwind
         if (!hitRegistered && inRange(other)) {         // omni-directional hit
             other.applyDamage(DMG_SPIN);
@@ -259,9 +271,8 @@ CharEvent Deadpool::tick(float dt, Character& other) {
     }
     case SKILL2_RECOVERY: {
         float r = phaseTimer / RECOV_SPIN;
-        armSpread = SPIN_ARMS_OUT * (1.f - r);
-        kataSwing = KATA_IDLE_PITCH * r;
-        if (phaseTimer >= RECOV_SPIN) { phase = IDLE; phaseTimer = 0.f; armSpread = 0.f; kataSwing = KATA_IDLE_PITCH; }
+        armSpread = SPIN_ARMS_OUT * (1.f - r);          // arms swing back to the body
+        if (phaseTimer >= RECOV_SPIN) { phase = IDLE; phaseTimer = 0.f; armSpread = 0.f; }
         break;
     }
 

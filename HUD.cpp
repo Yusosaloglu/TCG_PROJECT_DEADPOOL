@@ -62,7 +62,7 @@ void HUD::draw(const Character& p1, const Character& p2,
     drawString(p2x, (float)winH - 56.f, "DEADPOOL");
 
     // Controls reminder (small, bottom)
-    glColor3f(0.55f, 0.55f, 0.55f);
+    glColor3f(0.55f, 0.00f, 0.00f);
     drawString(10.f, 10.f, "P1: WASD/QE move+turn  Z=Claw Slash  X=Spin Claws    P2: IJKL/UO  N=Katana Slash  M=Spin Katana    R=Restart");
 
     // Win overlay

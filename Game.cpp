@@ -173,16 +173,18 @@ void Game::moveCharacter(Character& ch,
                          float dt) {
     if (!ch.alive) return;
 
-    if (keyState[tL]) ch.facingAngle -= PLAYER_TURN * dt;
-    if (keyState[tR]) ch.facingAngle += PLAYER_TURN * dt;
+    // Turn: flipped so left/right match the on-screen direction under this camera
+    if (keyState[tL]) ch.facingAngle += PLAYER_TURN * dt;
+    if (keyState[tR]) ch.facingAngle -= PLAYER_TURN * dt;
 
     float rad = ch.facingAngle * (float)M_PI / 180.f;
     float spd = PLAYER_SPEED * dt;
 
     if (keyState[fwd])  { ch.x += sinf(rad)*spd; ch.z += cosf(rad)*spd; }
     if (keyState[back]) { ch.x -= sinf(rad)*spd; ch.z -= cosf(rad)*spd; }
-    if (keyState[left]) { ch.x -= cosf(rad)*spd; ch.z += sinf(rad)*spd; }
-    if (keyState[right]){ ch.x += cosf(rad)*spd; ch.z -= sinf(rad)*spd; }
+    // Strafe: flipped to match on-screen left/right
+    if (keyState[left]) { ch.x += cosf(rad)*spd; ch.z -= sinf(rad)*spd; }
+    if (keyState[right]){ ch.x -= cosf(rad)*spd; ch.z += sinf(rad)*spd; }
 
     ch.x = clampf(ch.x, -ARENA_HALF, ARENA_HALF);
     ch.z = clampf(ch.z, -ARENA_HALF, ARENA_HALF);

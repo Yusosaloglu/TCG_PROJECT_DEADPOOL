@@ -28,7 +28,7 @@ static const float HAIR[3] = {0.06f, 0.06f, 0.08f};
 Wolverine::Wolverine() {
     x           = -2.f;
     z           =  0.f;
-    facingAngle = -90.f;  // face toward Deadpool's side
+    facingAngle =  90.f;  // face +X, toward Deadpool
 }
 
 // ── Legs ──────────────────────────────────────────────────────────────────────
@@ -119,33 +119,33 @@ void Wolverine::drawHead() {
         glPopMatrix();
     }
 
-    // Beard — prominent black mutton chops that flare out at the jaw
+    // Beard — prominent black mutton chops framing the lower face (on the surface)
     glColor3fv(HAIR);
     for (int s = -1; s <= 1; s += 2) {
         glPushMatrix();
-        glTranslatef(s*0.32f, -0.10f, 0.17f);
-        glRotatef(s*14.f, 0.f, 0.f, 1.f);               // flare outward at the bottom
-        glScalef(0.60f, 1.50f, 0.85f);
-        drawSphere(0.21f, 12, 10);
+        glTranslatef(s*0.31f, -0.10f, 0.24f);
+        glRotatef(s*12.f, 0.f, 0.f, 1.f);               // flare outward at the bottom
+        glScalef(0.62f, 1.60f, 0.95f);
+        drawSphere(0.22f, 12, 10);
         glPopMatrix();
     }
-    // jaw/chin band joining the chops (leaves the cheeks peach)
+    // jaw/chin band joining the chops under the face
     glColor3fv(HAIR);
-    glPushMatrix(); glTranslatef(0.f, -0.26f, 0.24f); glScalef(1.7f, 0.5f, 0.9f); drawSphere(0.20f, 14, 10); glPopMatrix();
+    glPushMatrix(); glTranslatef(0.f, -0.27f, 0.26f); glScalef(1.7f, 0.55f, 0.95f); drawSphere(0.20f, 14, 10); glPopMatrix();
 
-    // Eyes — large black ovals
-    glColor3f(0.08f, 0.07f, 0.07f);
+    // Eyes — large round black eyes, sitting proud of the face surface
+    glColor3f(0.06f, 0.05f, 0.05f);
     for (int s = -1; s <= 1; s += 2) {
-        glPushMatrix(); glTranslatef(s*0.16f, 0.00f, 0.42f); glScalef(0.9f, 1.35f, 0.5f); drawSphere(0.072f, 12, 10); glPopMatrix();
+        glPushMatrix(); glTranslatef(s*0.165f, 0.01f, 0.46f); glScalef(1.0f, 1.15f, 0.55f); drawSphere(0.085f, 14, 12); glPopMatrix();
     }
     // Thick angled eyebrows — the scowl
     glColor3f(0.05f, 0.05f, 0.06f);
     for (int s = -1; s <= 1; s += 2) {
-        glPushMatrix(); glTranslatef(s*0.16f, 0.12f, 0.41f); glRotatef(s*-16.f, 0,0,1); drawBox(0.18f, 0.06f, 0.04f); glPopMatrix();
+        glPushMatrix(); glTranslatef(s*0.17f, 0.15f, 0.46f); glRotatef(s*-18.f, 0,0,1); drawBox(0.20f, 0.065f, 0.05f); glPopMatrix();
     }
     // Nose
-    glColor3f(0.92f, 0.74f, 0.60f);
-    glPushMatrix(); glTranslatef(0.f, -0.06f, 0.46f); glRotatef(90.f, 1,0,0); drawWedgePrism(0.07f, 0.10f, 0.07f); glPopMatrix();
+    glColor3f(0.93f, 0.76f, 0.62f);
+    glPushMatrix(); glTranslatef(0.f, -0.05f, 0.50f); glRotatef(90.f, 1,0,0); drawWedgePrism(0.08f, 0.12f, 0.08f); glPopMatrix();
 
     glPopMatrix();
 }
