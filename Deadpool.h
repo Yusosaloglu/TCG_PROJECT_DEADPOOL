@@ -14,7 +14,8 @@ private:
     void drawLegs();
     void drawTorso();
     void drawBelt();
+    void drawBackGear();     // X-harness + twin scabbards on the back
     void drawArms();
-    void drawKatana();       // drawn in sword-hand-local space
+    void drawKatana(float uprightDeg);  // drawn in hand-local space; blade up when idle
     void drawHead();
 };

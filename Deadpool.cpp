@@ -70,45 +70,78 @@ void Deadpool::drawTorso() {
 void Deadpool::drawBelt() {
     glColor3fv(TAN);
     glPushMatrix(); glTranslatef(0.f, 0.64f, 0.f); drawBox(0.70f, 0.13f, 0.46f); glPopMatrix();
-    glColor3f(0.72f, 0.60f, 0.34f);                     // buckle
-    glPushMatrix(); glTranslatef(0.f, 0.64f, 0.235f); drawBox(0.12f, 0.10f, 0.02f); glPopMatrix();
+
+    // round Deadpool logo buckle: black ring, red centre, crossed katanas
+    glColor3fv(BLACK);
+    glPushMatrix(); glTranslatef(0.f, 0.64f, 0.243f); glScalef(1.f, 1.f, 0.35f); drawSphere(0.095f, 16, 12); glPopMatrix();
+    glColor3fv(RED);
+    glPushMatrix(); glTranslatef(0.f, 0.64f, 0.250f); glScalef(1.f, 1.f, 0.35f); drawSphere(0.062f, 14, 10); glPopMatrix();
+    glColor3f(0.82f, 0.84f, 0.90f);
+    glPushMatrix(); glTranslatef(0.f, 0.64f, 0.262f); glRotatef( 35.f, 0,0,1); drawBox(0.018f, 0.15f, 0.01f); glPopMatrix();
+    glPushMatrix(); glTranslatef(0.f, 0.64f, 0.262f); glRotatef(-35.f, 0,0,1); drawBox(0.018f, 0.15f, 0.01f); glPopMatrix();
+
     glColor3f(0.50f, 0.40f, 0.22f);                     // pouches
     for (int s = -1; s <= 1; s += 2) {
         glPushMatrix(); glTranslatef(s*0.30f, 0.60f, 0.18f); drawBox(0.13f, 0.16f, 0.10f); glPopMatrix();
     }
 }
 
-// ── Katana (drawn in sword-hand-local space; handle sits inside the fist) ──────
-void Deadpool::drawKatana() {
+// ── Back gear: X-harness straps + twin scabbards (trademark katana holders) ────
+void Deadpool::drawBackGear() {
+    glColor3fv(BLACK);                                  // X-harness straps on the back
+    for (int s = -1; s <= 1; s += 2) {
+        glPushMatrix(); glTranslatef(0.f, 0.95f, -0.205f); glRotatef(s*32.f, 0,0,1); drawBox(0.06f, 0.62f, 0.02f); glPopMatrix();
+    }
+    glColor3f(0.15f, 0.15f, 0.16f);                     // twin scabbards, tips above shoulders
+    for (int s = -1; s <= 1; s += 2) {
+        glPushMatrix();
+        glTranslatef(0.f, 1.18f, -0.30f);
+        glRotatef(s*24.f, 0.f, 0.f, 1.f);
+        drawBox(0.075f, 1.05f, 0.075f);
+        glPopMatrix();
+    }
+    glColor3fv(TAN);                                    // sheath collars at the openings
+    for (int s = -1; s <= 1; s += 2) {
+        glPushMatrix(); glTranslatef(s*0.30f, 1.55f, -0.34f); drawBox(0.10f, 0.07f, 0.10f); glPopMatrix();
+    }
+}
+
+// ── Katana (drawn in hand-local space; uprightDeg cancels arm pitch when idle) ─
+void Deadpool::drawKatana(float uprightDeg) {
     glPushMatrix();
-    glRotatef(-120.f, 1.f, 0.f, 0.f);                   // grip: blade out of the fist
+    glRotatef(uprightDeg, 1.f, 0.f, 0.f);               // stand blade up when idle (0 while swinging)
 
     glColor3fv(BLACK);                                  // handle (in the fist)
-    glPushMatrix(); drawBox(0.05f, 0.22f, 0.05f); glPopMatrix();
+    drawBox(0.05f, 0.24f, 0.05f);
     glColor3f(0.22f, 0.22f, 0.24f);                     // guard
-    glPushMatrix(); glTranslatef(0.f, 0.14f, 0.f); drawBox(0.16f, 0.04f, 0.06f); glPopMatrix();
+    glPushMatrix(); glTranslatef(0.f, 0.16f, 0.f); drawBox(0.16f, 0.045f, 0.06f); glPopMatrix();
 
-    pushMetal();                                        // blade + tip (specular metal)
+    pushMetal();                                        // blade + tip (specular metal), pointing up
     glColor3f(0.82f, 0.84f, 0.90f);
     glPushMatrix();
-    glTranslatef(0.f, 0.62f, 0.f); drawBox(0.045f, 0.92f, 0.02f);
-    glTranslatef(0.f, 0.53f, 0.f); drawWedgePrism(0.045f, 0.14f, 0.02f);
+    glTranslatef(0.f, 0.68f, 0.f); drawBox(0.045f, 0.98f, 0.02f);
+    glTranslatef(0.f, 0.56f, 0.f); drawWedgePrism(0.05f, 0.16f, 0.02f);
     glPopMatrix();
     popMetal();
 
     glPopMatrix();
 }
 
-// ── Arms (left bare, right grips katana; spin spreads both out) ────────────────
+// ── Arms (both hands grip an upward katana; right arm slashes, both spin out) ──
 void Deadpool::drawArms() {
+    bool spinning = (phase == SKILL2_WINDUP || phase == SKILL2_ACTIVE || phase == SKILL2_RECOVERY);
+    bool slashing = (phase == SKILL1_WINDUP || phase == SKILL1_ACTIVE || phase == SKILL1_RECOVERY);
+
     for (int s = -1; s <= 1; s += 2) {
-        bool  right = (s > 0);
-        float pitch = right ? kataSwing : 12.f;         // left arm slightly forward
+        bool  right     = (s > 0);
+        float pitch     = right ? kataSwing : KATA_IDLE_PITCH;
+        bool  animating = spinning || (right && slashing);   // follow the arm only when moving
+        float upright   = animating ? 0.f : pitch;           // else stand the blade vertical
 
         glPushMatrix();
         glTranslatef(s*0.36f, 1.10f, 0.f);              // shoulder pivot
         glRotatef(s*armSpread, 0.f, 0.f, 1.f);          // Skill 2: arms out
-        glRotatef(-pitch,      1.f, 0.f, 0.f);          // Skill 1: sword swing
+        glRotatef(-pitch,      1.f, 0.f, 0.f);          // arm pitch (hands forward)
 
         glColor3fv(RED);                                // red upper arm
         glTranslatef(0.f, -0.20f, 0.f); drawBox(0.18f, 0.34f, 0.22f);
@@ -117,7 +150,7 @@ void Deadpool::drawArms() {
         glColor3fv(RED);                                // red rounded hand
         glTranslatef(0.f, -0.20f, 0.f); drawSphere(0.15f, 12, 10);
 
-        if (right) drawKatana();                        // katana parented to the hand
+        drawKatana(upright);                            // BOTH hands hold a katana now
         glPopMatrix();
     }
 }
@@ -159,6 +192,7 @@ void Deadpool::draw() {
 
     drawLegs();
     drawTorso();
+    drawBackGear();
     drawBelt();
     drawArms();
     drawHead();

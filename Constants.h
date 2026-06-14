@@ -47,7 +47,7 @@ constexpr float DMG_SPIN       = 26.f;   // either spin attack (omni-directional
 // Skill animation poses (degrees)
 constexpr float CLAW_SLASH_LOW   = 25.f;   // arm pitch at start of Wolverine up-slash
 constexpr float CLAW_SLASH_HIGH  = 155.f;  // arm pitch at top of up-slash
-constexpr float KATA_IDLE_PITCH  = 55.f;   // sword-arm pitch when idle (ready stance)
+constexpr float KATA_IDLE_PITCH  = 35.f;   // arm pitch when idle: hands forward, blades up
 constexpr float KATA_RAISE_PITCH = 150.f;  // cocked back before the forward chop
 constexpr float KATA_CHOP_PITCH  = 25.f;   // follow-through of the forward chop
 constexpr float SPIN_ARMS_OUT    = 90.f;   // arms spread to the sides during spin

@@ -119,21 +119,33 @@ void Wolverine::drawHead() {
         glPopMatrix();
     }
 
-    glColor3fv(HAIR);                                   // mutton-chop sideburns
+    // Beard — prominent black mutton chops that flare out at the jaw
+    glColor3fv(HAIR);
     for (int s = -1; s <= 1; s += 2) {
-        glPushMatrix(); glTranslatef(s*0.40f, -0.10f, 0.14f); glScalef(0.5f, 1.1f, 0.7f); drawSphere(0.18f, 10, 8); glPopMatrix();
+        glPushMatrix();
+        glTranslatef(s*0.32f, -0.10f, 0.17f);
+        glRotatef(s*14.f, 0.f, 0.f, 1.f);               // flare outward at the bottom
+        glScalef(0.60f, 1.50f, 0.85f);
+        drawSphere(0.21f, 12, 10);
+        glPopMatrix();
     }
+    // jaw/chin band joining the chops (leaves the cheeks peach)
+    glColor3fv(HAIR);
+    glPushMatrix(); glTranslatef(0.f, -0.26f, 0.24f); glScalef(1.7f, 0.5f, 0.9f); drawSphere(0.20f, 14, 10); glPopMatrix();
 
-    glColor3f(0.05f, 0.05f, 0.06f);                     // angled eyebrows
+    // Eyes — large black ovals
+    glColor3f(0.08f, 0.07f, 0.07f);
     for (int s = -1; s <= 1; s += 2) {
-        glPushMatrix(); glTranslatef(s*0.17f, 0.08f, 0.40f); glRotatef(s*-12.f, 0,0,1); drawBox(0.16f, 0.045f, 0.03f); glPopMatrix();
+        glPushMatrix(); glTranslatef(s*0.16f, 0.00f, 0.42f); glScalef(0.9f, 1.35f, 0.5f); drawSphere(0.072f, 12, 10); glPopMatrix();
     }
-    glColor3f(0.10f, 0.08f, 0.07f);                     // eye dots
+    // Thick angled eyebrows — the scowl
+    glColor3f(0.05f, 0.05f, 0.06f);
     for (int s = -1; s <= 1; s += 2) {
-        glPushMatrix(); glTranslatef(s*0.16f, -0.02f, 0.42f); drawSphere(0.045f, 8, 6); glPopMatrix();
+        glPushMatrix(); glTranslatef(s*0.16f, 0.12f, 0.41f); glRotatef(s*-16.f, 0,0,1); drawBox(0.18f, 0.06f, 0.04f); glPopMatrix();
     }
-    glColor3f(0.92f, 0.74f, 0.60f);                     // small nose
-    glPushMatrix(); glTranslatef(0.f, -0.12f, 0.43f); glRotatef(90.f, 1,0,0); drawWedgePrism(0.06f, 0.09f, 0.06f); glPopMatrix();
+    // Nose
+    glColor3f(0.92f, 0.74f, 0.60f);
+    glPushMatrix(); glTranslatef(0.f, -0.06f, 0.46f); glRotatef(90.f, 1,0,0); drawWedgePrism(0.07f, 0.10f, 0.07f); glPopMatrix();
 
     glPopMatrix();
 }
