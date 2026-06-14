@@ -33,16 +33,32 @@ constexpr float WINDUP_KATA    = 0.22f;  // Deadpool katana slash (forward)
 constexpr float ACTIVE_KATA    = 0.20f;
 constexpr float RECOV_KATA     = 0.35f;
 
-// Skill 2 — spin attacks (in place) shared by both characters
-constexpr float WINDUP_SPIN    = 0.25f;  // raise weapon, claws pop out
-constexpr float ACTIVE_SPIN    = 0.55f;  // the 360-degree whirlwind
-constexpr float RECOV_SPIN     = 0.30f;
-constexpr float SPIN_TURNS     = 2.0f;   // full rotations during ACTIVE (x360)
+// Skill 2 — Wolverine: Berserker Heal (gauge fuelled by landed Claw Slashes)
+constexpr float HEAL_GAUGE_MAX    = 60.f;   // max HP that can be banked in the gauge
+constexpr float HEAL_GAIN_PER_HIT = 15.f;   // HP added to the gauge per Claw Slash hit
+constexpr float WINDUP_HEAL       = 0.30f;  // aura ramps in
+constexpr float ACTIVE_HEAL       = 0.70f;  // banked HP pours back over this window
+constexpr float RECOV_HEAL        = 0.30f;  // aura ramps out
+constexpr float HEAL_AURA_RADIUS  = 0.95f;  // translucent green glow sphere radius
+constexpr float HEAL_AURA_ALPHA   = 0.30f;  // peak aura opacity
+
+// Skill 2 — Deadpool: Desert Eagle (instant hitscan + tracer)
+constexpr float WINDUP_GUN     = 0.22f;  // raise the gun into the aim pose
+constexpr float ACTIVE_GUN     = 0.14f;  // the fire frame
+constexpr float RECOV_GUN      = 0.30f;  // lower the gun
+constexpr float GUN_RANGE      = 14.f;   // hitscan reach (spans the arena diagonal)
+constexpr float GUN_ANGLE_TOL  = 12.f;   // half-cone degrees from facing for a hit
+constexpr float TRACER_DUR     = 0.10f;  // seconds the tracer beam stays visible
+constexpr float GUN_AIM_PITCH  = 90.f;   // arm pitch for the straight-forward aim
+constexpr float GUN_RECOIL_DEG = 18.f;   // arm kick on the fire frame
+constexpr float MUZZLE_FWD     = 0.55f;  // muzzle offset forward of body centre
+constexpr float MUZZLE_SIDE    = 0.36f;  // muzzle offset to the gun-arm side (shoulder)
+constexpr float MUZZLE_HEIGHT  = 1.15f;  // muzzle height above ground
 
 // Damage
 constexpr float DMG_SLASH      = 18.f;   // Wolverine claw slash
 constexpr float DMG_KATANA     = 20.f;   // Deadpool katana slash
-constexpr float DMG_SPIN       = 26.f;   // either spin attack (omni-directional)
+constexpr float DMG_GUN        = 22.f;   // Deadpool Desert Eagle shot (ranged)
 
 // Skill animation poses (degrees)
 constexpr float CLAW_SLASH_LOW   = 25.f;   // arm pitch at start of Wolverine up-slash
@@ -50,7 +66,6 @@ constexpr float CLAW_SLASH_HIGH  = 155.f;  // arm pitch at top of up-slash
 constexpr float KATA_IDLE_PITCH  = 35.f;   // arm pitch when idle: hands forward, blades up
 constexpr float KATA_SLASH_PITCH = 85.f;   // arm held near-horizontal during the slash
 constexpr float KATA_SLASH_YAW   = 75.f;   // half-arc of the left->right horizontal sweep
-constexpr float SPIN_ARMS_OUT    = 90.f;   // arms spread to the sides during spin
 constexpr float CLAW_LEN         = 0.42f;  // extended claw blade length (units)
 
 // Environment

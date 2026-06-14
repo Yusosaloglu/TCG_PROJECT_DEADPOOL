@@ -131,29 +131,79 @@ void Deadpool::drawKatana(float uprightDeg, bool extend) {
     glPopMatrix();
 }
 
-// ── Arms (both hands grip a katana; right arm slashes L→R, both spin out) ──────
+// ── Desert Eagle (hand-built pistol; barrel points down the arm = aim direction) ─
+void Deadpool::drawDesertEagle() {
+    glPushMatrix();
+    glRotatef(180.f, 1.f, 0.f, 0.f);     // align with the katana's "extended" axis (forward)
+
+    glColor3fv(BLACK);                   // grip sits in the fist, angled back
+    glPushMatrix(); glTranslatef(0.f, 0.0f, -0.04f); glRotatef(12.f, 1,0,0); drawBox(0.07f, 0.18f, 0.05f); glPopMatrix();
+
+    glColor3f(0.16f, 0.16f, 0.18f);      // frame / trigger housing
+    glPushMatrix(); glTranslatef(0.f, 0.12f, 0.02f); drawBox(0.085f, 0.12f, 0.10f); glPopMatrix();
+
+    pushMetal();                         // slide + muzzle (specular steel)
+    glColor3f(0.80f, 0.82f, 0.88f);
+    glPushMatrix(); glTranslatef(0.f, 0.26f, 0.02f); drawBox(0.085f, 0.34f, 0.075f); glPopMatrix();  // slide
+    glColor3f(0.72f, 0.74f, 0.80f);
+    glPushMatrix(); glTranslatef(0.f, 0.46f, 0.02f); drawBox(0.05f,  0.10f, 0.05f);  glPopMatrix();  // muzzle
+    popMetal();
+
+    glColor3f(0.20f, 0.20f, 0.22f);      // trigger nub
+    glPushMatrix(); glTranslatef(0.f, 0.02f, 0.06f); drawBox(0.05f, 0.04f, 0.02f); glPopMatrix();
+
+    glPopMatrix();
+}
+
+// ── Desert Eagle tracer: additive beam from muzzle to impact, in world space ───
+void Deadpool::drawTracer() {
+    if (tracerTimer <= 0.f) return;
+    float a = tracerTimer / TRACER_DUR;
+
+    glDisable(GL_LIGHTING);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);          // additive
+    glDepthMask(GL_FALSE);
+
+    glLineWidth(3.f);
+    glColor4f(1.f, 0.9f, 0.5f, a);
+    glBegin(GL_LINES);
+    glVertex3f(tracerSx, tracerSy, tracerSz);
+    glVertex3f(tracerEx, tracerEy, tracerEz);
+    glEnd();
+    glLineWidth(1.f);
+
+    glDepthMask(GL_TRUE);                        // restore default GL state
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_BLEND);
+    glEnable(GL_LIGHTING);
+}
+
+// ── Arms (right hand wields katana or Desert Eagle; left mirrors for the sword) ─
 void Deadpool::drawArms() {
-    bool spinning = (phase == SKILL2_WINDUP || phase == SKILL2_ACTIVE || phase == SKILL2_RECOVERY);
+    bool gunning  = (phase == SKILL2_WINDUP || phase == SKILL2_ACTIVE || phase == SKILL2_RECOVERY);
     bool slashing = (phase == SKILL1_WINDUP || phase == SKILL1_ACTIVE || phase == SKILL1_RECOVERY);
 
     for (int s = -1; s <= 1; s += 2) {
         bool right = (s > 0);
 
-        // Pose per phase
-        float spread = armSpread;     // nonzero only during spin
-        float pitch, yaw;
-        bool  extend;
-        if (spinning) {               // arms straight out to the sides, blades outward
-            pitch = 0.f;  yaw = 0.f;  extend = true;
-        } else if (slashing && right) {   // sword arm horizontal, sweeping L→R
-            pitch = KATA_SLASH_PITCH; yaw = kataYaw; extend = true;
-        } else {                      // idle: hand forward, blade standing up
-            pitch = KATA_IDLE_PITCH;  yaw = 0.f;     extend = false;
+        // Pose + weapon per phase
+        float pitch, yaw = 0.f;
+        bool  extend = false, holdKatana = false, holdGun = false;
+        if (gunning && right) {               // gun arm punches straight forward
+            pitch = GUN_AIM_PITCH;
+            if (phase == SKILL2_ACTIVE) pitch -= GUN_RECOIL_DEG;   // recoil kick on fire
+            holdGun = true;
+        } else if (gunning) {                 // off hand tucked low while shooting
+            pitch = KATA_IDLE_PITCH * 0.4f;
+        } else if (slashing && right) {       // sword arm horizontal, sweeping L→R
+            pitch = KATA_SLASH_PITCH; yaw = kataYaw; extend = true; holdKatana = true;
+        } else {                              // idle: hand forward, blade standing up
+            pitch = KATA_IDLE_PITCH;  holdKatana = true;
         }
 
         glPushMatrix();
         glTranslatef(s*0.36f, 1.10f, 0.f);          // shoulder pivot
-        glRotatef(s*spread, 0.f, 0.f, 1.f);         // Skill 2: arms out to sides
         glRotatef(yaw,      0.f, 1.f, 0.f);         // Skill 1: horizontal sweep
         glRotatef(-pitch,   1.f, 0.f, 0.f);         // arm pitch
 
@@ -164,7 +214,8 @@ void Deadpool::drawArms() {
         glColor3fv(RED);                            // red rounded hand
         glTranslatef(0.f, -0.20f, 0.f); drawSphere(0.15f, 12, 10);
 
-        drawKatana(pitch, extend);                  // both hands hold a katana
+        if (holdKatana) drawKatana(pitch, extend);
+        if (holdGun)    drawDesertEagle();
         glPopMatrix();
     }
 }
@@ -202,7 +253,7 @@ void Deadpool::drawHead() {
 void Deadpool::draw() {
     glPushMatrix();
     glTranslatef(x, 0.f, z);
-    glRotatef(facingAngle + spinAngle, 0.f, 1.f, 0.f);  // spinAngle drives Skill 2
+    glRotatef(facingAngle, 0.f, 1.f, 0.f);
 
     drawLegs();
     drawTorso();
@@ -212,6 +263,8 @@ void Deadpool::draw() {
     drawHead();
 
     glPopMatrix();
+
+    drawTracer();   // world-space shot beam (after the body matrix is popped)
 }
 
 // ── Tick ──────────────────────────────────────────────────────────────────────
@@ -219,6 +272,7 @@ CharEvent Deadpool::tick(float dt, Character& other) {
     CharEvent ev;
     if (!alive) return ev;
     phaseTimer += dt;
+    if (tracerTimer > 0.f) tracerTimer -= dt;   // fade the shot beam
 
     switch (phase) {
     // ── Skill 1: Katana Slash (horizontal, left → right) ──────────────────────
@@ -246,33 +300,40 @@ CharEvent Deadpool::tick(float dt, Character& other) {
         break;
     }
 
-    // ── Skill 2: Spinning Katana (in place, blades out) ───────────────────────
+    // ── Skill 2: Desert Eagle (instant hitscan + tracer) ──────────────────────
     case SKILL2_WINDUP: {
-        float w = phaseTimer / WINDUP_SPIN;
-        armSpread = SPIN_ARMS_OUT * w;                  // arms out, katanas swing outward
-        spinAngle = 0.f;
-        if (phaseTimer >= WINDUP_SPIN) { phase = SKILL2_ACTIVE; phaseTimer = 0.f; }
+        // raise the gun into the aim pose (handled by drawArms)
+        if (phaseTimer >= WINDUP_GUN) { phase = SKILL2_ACTIVE; phaseTimer = 0.f; }
         break;
     }
     case SKILL2_ACTIVE: {
-        float a = phaseTimer / ACTIVE_SPIN;
-        armSpread = SPIN_ARMS_OUT;
-        spinAngle = a * 360.f * SPIN_TURNS;             // whirlwind
-        if (!hitRegistered && inRange(other)) {         // omni-directional hit
-            other.applyDamage(DMG_SPIN);
-            hitRegistered = true; ev.hitLanded = true; ev.doImpactFlash = true;
-            ev.addEmit(other.x, 1.2f, other.z, 1.f, 0.6f, 0.15f, 22, 4.5f);
+        if (!hitRegistered) {                           // fire exactly once per cast
+            hitRegistered = true;
+            float rad = facingAngle * (float)M_PI / 180.f;
+            float fx = sinf(rad), fz = cosf(rad);       // forward
+            float rx = cosf(rad), rz = -sinf(rad);      // right (matches strafe basis)
+            tracerSx = x + fx*MUZZLE_FWD + rx*MUZZLE_SIDE;
+            tracerSy = MUZZLE_HEIGHT;
+            tracerSz = z + fz*MUZZLE_FWD + rz*MUZZLE_SIDE;
+            tracerEx = tracerSx + fx*GUN_RANGE;
+            tracerEy = MUZZLE_HEIGHT;
+            tracerEz = tracerSz + fz*GUN_RANGE;
+            tracerTimer = TRACER_DUR;
+
+            ev.addEmit(tracerSx, tracerSy, tracerSz, 1.f, 0.85f, 0.3f, 14, 5.f);  // muzzle flash
+
+            if (inCone(other, GUN_RANGE, GUN_ANGLE_TOL)) {                         // hitscan
+                other.applyDamage(DMG_GUN);
+                ev.hitLanded = true; ev.doImpactFlash = true;
+                ev.addEmit(other.x, 1.2f, other.z, 0.7f, 0.05f, 0.05f, 18, 4.f);  // blood
+            }
         }
-        // orange trail ringing the body
-        if ((int)(phaseTimer / 0.05f) > (int)((phaseTimer - dt) / 0.05f))
-            ev.addEmit(x, 1.1f, z, 1.f, 0.55f, 0.12f, 4, 2.5f);
-        if (phaseTimer >= ACTIVE_SPIN) { phase = SKILL2_RECOVERY; phaseTimer = 0.f; spinAngle = 0.f; }
+        if (phaseTimer >= ACTIVE_GUN) { phase = SKILL2_RECOVERY; phaseTimer = 0.f; }
         break;
     }
     case SKILL2_RECOVERY: {
-        float r = phaseTimer / RECOV_SPIN;
-        armSpread = SPIN_ARMS_OUT * (1.f - r);          // arms swing back to the body
-        if (phaseTimer >= RECOV_SPIN) { phase = IDLE; phaseTimer = 0.f; armSpread = 0.f; }
+        // lower the gun (handled by drawArms)
+        if (phaseTimer >= RECOV_GUN) { phase = IDLE; phaseTimer = 0.f; }
         break;
     }
 

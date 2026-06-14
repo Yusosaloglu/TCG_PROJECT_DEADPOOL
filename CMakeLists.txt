@@ -18,7 +18,9 @@ add_executable(BlindBoxBattle
 )
 
 target_include_directories(BlindBoxBattle PRIVATE ${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
-target_link_libraries(BlindBoxBattle OpenGL::GL GLUT::GLUT)
+# GLU (gluPerspective/gluLookAt/gluOrtho2D) is bundled in the OpenGL framework
+# on macOS but is a separate library (glu32) on Windows/Linux.
+target_link_libraries(BlindBoxBattle OpenGL::GL OpenGL::GLU GLUT::GLUT)
 
 # Suppress the common warning about gluPerspective/gluLookAt being deprecated on macOS
 if(APPLE)

@@ -91,7 +91,7 @@ void Game::draw() {
     p1.draw();
     p2.draw();
     particles.draw();
-    hud.draw(p1, p2, winW, winH, gameState);
+    hud.draw(p1, p2, winW, winH, gameState, p1.healGauge / HEAL_GAUGE_MAX);
 }
 
 // ── Tick ──────────────────────────────────────────────────────────────────────

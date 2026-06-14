@@ -25,20 +25,20 @@ void Character::applyDamage(float dmg) {
 }
 
 bool Character::inHitRange(const Character& other) const {
+    return inCone(other, HIT_RANGE, HIT_ANGLE_TOL);
+}
+
+// General forward-cone hit test, shared by the melee slashes (short range,
+// wide cone) and the Desert Eagle hitscan (long range, narrow cone).
+bool Character::inCone(const Character& other, float range, float tolDeg) const {
     float dx   = other.x - x;
     float dz   = other.z - z;
     float dist = sqrtf(dx*dx + dz*dz);
-    if (dist > HIT_RANGE) return false;
+    if (dist > range) return false;
 
     float angleToTarget = atan2f(dx, dz) * 180.f / (float)M_PI;
     float diff = angleToTarget - facingAngle;
     while (diff >  180.f) diff -= 360.f;
     while (diff < -180.f) diff += 360.f;
-    return fabsf(diff) < HIT_ANGLE_TOL;
-}
-
-bool Character::inRange(const Character& other) const {
-    float dx = other.x - x;
-    float dz = other.z - z;
-    return (dx*dx + dz*dz) < (HIT_RANGE * HIT_RANGE);
+    return fabsf(diff) < tolDeg;
 }

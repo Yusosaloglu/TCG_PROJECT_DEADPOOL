@@ -31,6 +31,12 @@ Wolverine::Wolverine() {
     facingAngle =  90.f;  // face +X, toward Deadpool
 }
 
+// Berserker Heal only triggers when the gauge holds banked healing.
+void Wolverine::startSkill2() {
+    if (healGauge <= 0.f) return;
+    Character::startSkill2();
+}
+
 // ── Legs ──────────────────────────────────────────────────────────────────────
 void Wolverine::drawLegs() {
     glColor3fv(YEL);                                    // yellow thighs
@@ -84,7 +90,6 @@ void Wolverine::drawClaws() {
 void Wolverine::drawArm(int side) {
     glPushMatrix();
     glTranslatef(side*0.36f, 1.10f, 0.f);               // shoulder pivot
-    glRotatef(side*armSpread, 0.f, 0.f, 1.f);           // Skill 2: arms out to sides
     glRotatef(-armPitch,      1.f, 0.f, 0.f);           // Skill 1: down→up sweep
 
     glColor3fv(YEL);                                    // yellow upper arm
@@ -150,17 +155,44 @@ void Wolverine::drawHead() {
     glPopMatrix();
 }
 
+// ── Heal aura (translucent green additive glow during Berserker Heal) ──────────
+void Wolverine::drawHealAura() {
+    float intensity;
+    if      (phase == SKILL2_WINDUP)   intensity = phaseTimer / WINDUP_HEAL;
+    else if (phase == SKILL2_ACTIVE)   intensity = 1.f;
+    else if (phase == SKILL2_RECOVERY) intensity = 1.f - phaseTimer / RECOV_HEAL;
+    else return;
+    intensity = clampf(intensity, 0.f, 1.f);
+
+    glDisable(GL_LIGHTING);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);              // additive glow
+    glDepthMask(GL_FALSE);
+
+    glColor4f(0.25f, 1.0f, 0.45f, HEAL_AURA_ALPHA * intensity);
+    glPushMatrix();
+    glTranslatef(0.f, 1.0f, 0.f);                   // centre on the torso
+    drawSphere(HEAL_AURA_RADIUS, 16, 12);
+    glPopMatrix();
+
+    glDepthMask(GL_TRUE);                           // restore default GL state
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_BLEND);
+    glEnable(GL_LIGHTING);
+}
+
 // ── Main draw ─────────────────────────────────────────────────────────────────
 void Wolverine::draw() {
     glPushMatrix();
     glTranslatef(x, 0.f, z);
-    glRotatef(facingAngle + spinAngle, 0.f, 1.f, 0.f);  // spinAngle drives Skill 2
+    glRotatef(facingAngle, 0.f, 1.f, 0.f);
 
     drawLegs();
     drawTorso();
     drawArm(-1);
     drawArm( 1);
     drawHead();
+    drawHealAura();          // green glow during Berserker Heal
 
     glPopMatrix();
 }
@@ -188,6 +220,7 @@ CharEvent Wolverine::tick(float dt, Character& other) {
             other.applyDamage(DMG_SLASH);
             hitRegistered = true; ev.hitLanded = true; ev.doImpactFlash = true;
             ev.addEmit(other.x, 1.2f, other.z, 1.f, 0.95f, 0.7f, 20, 4.f);
+            healGauge = clampf(healGauge + HEAL_GAIN_PER_HIT, 0.f, HEAL_GAUGE_MAX);  // bank healing
         }
         if (phaseTimer >= ACTIVE_SLASH) { phase = SKILL1_RECOVERY; phaseTimer = 0.f; }
         break;
@@ -200,36 +233,28 @@ CharEvent Wolverine::tick(float dt, Character& other) {
         break;
     }
 
-    // ── Skill 2: Spinning Claws (in place) ────────────────────────────────────
+    // ── Skill 2: Berserker Heal (gauge fuelled by landed Claw Slashes) ─────────
     case SKILL2_WINDUP: {
-        float w = phaseTimer / WINDUP_SPIN;
-        clawExtend = w;
-        armSpread  = SPIN_ARMS_OUT * w;                 // arms out to the sides
-        spinAngle  = 0.f;
-        if (phaseTimer >= WINDUP_SPIN) { phase = SKILL2_ACTIVE; phaseTimer = 0.f; }
+        // aura ramps in (drawn by drawHealAura); no HP change yet
+        if (phaseTimer >= WINDUP_HEAL) {
+            phase = SKILL2_ACTIVE; phaseTimer = 0.f;
+            healBanked = healGauge;                     // snapshot what we pour back
+        }
         break;
     }
     case SKILL2_ACTIVE: {
-        float a = phaseTimer / ACTIVE_SPIN;
-        clawExtend = 1.f;
-        armSpread  = SPIN_ARMS_OUT;
-        spinAngle  = a * 360.f * SPIN_TURNS;             // whirlwind
-        if (!hitRegistered && inRange(other)) {         // omni-directional hit
-            other.applyDamage(DMG_SPIN);
-            hitRegistered = true; ev.hitLanded = true; ev.doImpactFlash = true;
-            ev.addEmit(other.x, 1.2f, other.z, 0.9f, 0.92f, 0.98f, 22, 4.5f);
+        hp = clampf(hp + healBanked * (dt / ACTIVE_HEAL), 0.f, MAX_HP);  // HP bar visibly climbs
+        if ((int)(phaseTimer / 0.06f) > (int)((phaseTimer - dt) / 0.06f))
+            ev.addEmit(x, 1.0f, z, 0.3f, 1.f, 0.5f, 4, 2.0f);            // rising green motes
+        if (phaseTimer >= ACTIVE_HEAL) {
+            phase = SKILL2_RECOVERY; phaseTimer = 0.f;
+            healGauge = 0.f;                            // gauge spent
         }
-        // silver trail ringing the body
-        if ((int)(phaseTimer / 0.05f) > (int)((phaseTimer - dt) / 0.05f))
-            ev.addEmit(x, 1.1f, z, 0.85f, 0.88f, 0.95f, 4, 2.5f);
-        if (phaseTimer >= ACTIVE_SPIN) { phase = SKILL2_RECOVERY; phaseTimer = 0.f; spinAngle = 0.f; }
         break;
     }
     case SKILL2_RECOVERY: {
-        float r = phaseTimer / RECOV_SPIN;
-        armSpread  = SPIN_ARMS_OUT * (1.f - r);
-        clawExtend = 1.f - r;
-        if (phaseTimer >= RECOV_SPIN) { phase = IDLE; phaseTimer = 0.f; armSpread = 0.f; clawExtend = 0.f; }
+        // aura ramps out
+        if (phaseTimer >= RECOV_HEAL) { phase = IDLE; phaseTimer = 0.f; }
         break;
     }
 

@@ -33,7 +33,6 @@ public:
     // World position (y=0 is ground level; Y is up)
     float x = 0.f, z = 0.f;
     float facingAngle = 0.f;  // Y-axis rotation, degrees; 0 = facing +z
-    float spinAngle   = 0.f;  // extra Y-rotation during Skill 2 spin (added in draw)
 
     float hp    = MAX_HP;
     bool  alive = true;
@@ -56,8 +55,8 @@ public:
     virtual CharEvent tick(float dt, Character& other)   = 0;
 
     // Called from Game::keyDown — safe: guards phase==IDLE internally
-    void startSkill1();
-    void startSkill2();
+    void         startSkill1();
+    virtual void startSkill2();   // Wolverine overrides to gate on the heal gauge
 
     void applyDamage(float dmg);
 
@@ -65,7 +64,8 @@ public:
     // Handles angle wraparound.  Used by the directional slash skills.
     bool inHitRange(const Character& other) const;
 
-    // True if 'other' is within HIT_RANGE, ignoring facing direction.
-    // Used by the 360-degree spin skills (omni-directional hit).
-    bool inRange(const Character& other) const;
+    // General forward-cone test: 'other' within `range` and inside the
+    // ±`tolDeg` half-cone about facing.  Handles wraparound.  Backs both
+    // inHitRange (melee) and the Desert Eagle hitscan.
+    bool inCone(const Character& other, float range, float tolDeg) const;
 };

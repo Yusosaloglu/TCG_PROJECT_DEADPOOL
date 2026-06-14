@@ -1,0 +1,3 @@
+"C:\Program Files\JetBrains\CLion 2026.1.3\bin\cmake\win\x64\bin\cmake.exe" -E rm -f CMakeFiles\BlindBoxBattle.dir/objects.a
+C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\BlindBoxBattle.dir/objects.a @CMakeFiles\BlindBoxBattle.dir\objects1.rsp
+C:\msys64\mingw64\bin\g++.exe -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles\BlindBoxBattle.dir/objects.a -Wl,--no-whole-archive -o BlindBoxBattle.exe -Wl,--out-implib,libBlindBoxBattle.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\BlindBoxBattle.dir\linkLibs.rsp
