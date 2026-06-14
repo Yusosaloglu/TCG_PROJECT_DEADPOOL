@@ -191,14 +191,6 @@ void Wolverine::draw() {
     glTranslatef(x, 0.f, z);
     glRotatef(facingAngle, 0.f, 1.f, 0.f);
 
-    if (rollTimer > 0.f) {                       // dodge-roll tumble about the forward axis
-        float t    = 1.f - rollTimer / ROLL_DUR;
-        float lift = sinf((t > 1.f ? 1.f : t) * 3.14159265f) * ROLL_HOP;
-        glTranslatef(0.f, ROLL_PIVOT_Y + lift, 0.f);
-        glRotatef(rollAngle, 0.f, 0.f, 1.f);
-        glTranslatef(0.f, -ROLL_PIVOT_Y, 0.f);
-    }
-
     drawLegs();
     drawTorso();
     drawArm(-1);
@@ -228,7 +220,7 @@ CharEvent Wolverine::tick(float dt, Character& other) {
         float u = phaseTimer / ACTIVE_SLASH;
         clawExtend = 1.f;
         armPitch   = CLAW_SLASH_LOW + (CLAW_SLASH_HIGH - CLAW_SLASH_LOW) * u;  // sweep up
-        if (!hitRegistered && inHitRange(other) && !other.rolling()) {  // roll dodges (i-frames)
+        if (!hitRegistered && inHitRange(other)) {
             other.applyDamage(DMG_SLASH);
             hitRegistered = true; ev.hitLanded = true; ev.doImpactFlash = true;
             ev.addEmit(other.x, 1.2f, other.z, 1.f, 0.95f, 0.7f, 20, 4.f);

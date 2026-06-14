@@ -103,11 +103,13 @@ void Game::tick() {
 
     if (gameState != GameState::FIGHTING) return;
 
-    // Movement (forward/back + turn; lateral is the dodge roll)
-    moveCharacter(p1, 'w','s','q','e', dt);
-    moveCharacter(p2, 'i','k','u','o', dt);
-    p1.updateRoll(dt);
-    p2.updateRoll(dt);
+    // Movement — slide along X only (Mortal-Kombat style)
+    moveCharacter(p1, 'a','d', dt);
+    moveCharacter(p2, 'j','l', dt);
+
+    // Auto-face: each fighter always turns to look at the other
+    p1.facingAngle = atan2f(p2.x - p1.x, p2.z - p1.z) * 180.f / (float)M_PI;
+    p2.facingAngle = atan2f(p1.x - p2.x, p1.z - p2.z) * 180.f / (float)M_PI;
 
     // Skill ticks (animation + hit detection → events)
     CharEvent e1 = p1.tick(dt, p2);
@@ -158,10 +160,6 @@ void Game::keyDown(unsigned char k, int, int) {
         if (k == 'x') p1.startSkill2();
         if (k == 'n') p2.startSkill1();
         if (k == 'm') p2.startSkill2();
-        if (k == 'a') p1.startRoll(+1);   // Wolverine roll left
-        if (k == 'd') p1.startRoll(-1);   // Wolverine roll right
-        if (k == 'j') p2.startRoll(+1);   // Deadpool roll left
-        if (k == 'l') p2.startRoll(-1);   // Deadpool roll right
     }
     if (k == 'r' && gameState == GameState::GAME_OVER)
         resetMatch();
@@ -172,25 +170,19 @@ void Game::keyUp(unsigned char k, int, int) {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+// Mortal-Kombat-style movement: fighters only slide along the X axis (toward or
+// away from each other).  Z is pinned to the fight line; facing is auto-set in tick.
 void Game::moveCharacter(Character& ch,
-                         unsigned char fwd, unsigned char back,
-                         unsigned char tL,  unsigned char tR,
+                         unsigned char leftKey, unsigned char rightKey,
                          float dt) {
-    if (!ch.alive || ch.rolling()) return;   // a roll drives its own movement
+    if (!ch.alive) return;
 
-    // Turn: flipped so left/right match the on-screen direction under this camera
-    if (keyState[tL]) ch.facingAngle += PLAYER_TURN * dt;
-    if (keyState[tR]) ch.facingAngle -= PLAYER_TURN * dt;
-
-    float rad = ch.facingAngle * (float)M_PI / 180.f;
     float spd = PLAYER_SPEED * dt;
-
-    // Forward / back only — no strafing (lateral movement is the dodge roll)
-    if (keyState[fwd])  { ch.x += sinf(rad)*spd; ch.z += cosf(rad)*spd; }
-    if (keyState[back]) { ch.x -= sinf(rad)*spd; ch.z -= cosf(rad)*spd; }
+    if (keyState[leftKey])  ch.x -= spd;   // screen-left  (-X)
+    if (keyState[rightKey]) ch.x += spd;   // screen-right (+X)
 
     ch.x = clampf(ch.x, -ARENA_HALF, ARENA_HALF);
-    ch.z = clampf(ch.z, -ARENA_HALF, ARENA_HALF);
+    ch.z = 0.f;                            // no depth roaming — stay on the fight line
 }
 
 void Game::resetMatch() {

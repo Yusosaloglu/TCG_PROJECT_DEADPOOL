@@ -48,12 +48,6 @@ public:
     Phase phase      = IDLE;
     float phaseTimer = 0.f;   // seconds elapsed in current phase
 
-    // Dodge roll — independent of the skill phase (see startRoll / updateRoll)
-    float rollTimer = 0.f;    // counts down from ROLL_DUR while rolling
-    float rollAngle = 0.f;    // current tumble angle (degrees), applied in draw()
-    int   rollDir   = 0;      // +1 = roll left, -1 = roll right
-    bool  rolling() const { return rollTimer > 0.f; }
-
     virtual ~Character() = default;
 
     // Subclasses implement geometry and skill logic
@@ -63,10 +57,6 @@ public:
     // Called from Game::keyDown — safe: guards phase==IDLE internally
     void         startSkill1();
     virtual void startSkill2();   // Wolverine overrides to gate on the heal gauge
-
-    // Dodge roll: dir +1 = left, -1 = right.  Starts only from IDLE.
-    void startRoll(int dir);
-    void updateRoll(float dt);    // advances the roll + lateral move; called by Game
 
     void applyDamage(float dmg);
 

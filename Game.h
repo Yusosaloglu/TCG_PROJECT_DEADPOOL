@@ -33,8 +33,7 @@ private:
     GameState gameState     = GameState::FIGHTING;
 
     void moveCharacter(Character& ch,
-                       unsigned char fwd, unsigned char back,
-                       unsigned char turnL, unsigned char turnR,
+                       unsigned char leftKey, unsigned char rightKey,
                        float dt);
 
     void resetMatch();
