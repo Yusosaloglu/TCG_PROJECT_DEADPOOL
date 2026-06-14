@@ -64,7 +64,7 @@ void HUD::draw(const Character& p1, const Character& p2,
 
     // Controls reminder (small, bottom)
     glColor3f(0.55f, 0.00f, 0.00f);
-    drawString(10.f, 10.f, "P1: WASD/QE move+turn  Z=Claw Slash  X=Berserker Heal    P2: IJKL/UO  N=Katana Slash  M=Desert Eagle    R=Restart");
+    drawString(10.f, 10.f, "P1: W/S move  Q/E turn  A/D roll  Z=Claw  X=Heal     P2: I/K move  U/O turn  J/L roll  N=Katana  M=Desert Eagle     R=Restart");
 
     // Win overlay
     if (state == GameState::GAME_OVER) {

@@ -124,19 +124,23 @@ void Wolverine::drawHead() {
         glPopMatrix();
     }
 
-    // Beard — prominent black mutton chops framing the lower face (on the surface)
+    // Mutton chops — thick pointed sideburns down the cheeks; the chin stays bare
+    // skin.  Reference: the chops connect up to the hair and taper to a point at
+    // the jaw — NOT a full beard.  (The old code joined them with a wide chin band
+    // that buried the lower face in black, which is why he looked so heavily bearded.)
     glColor3fv(HAIR);
     for (int s = -1; s <= 1; s += 2) {
         glPushMatrix();
-        glTranslatef(s*0.31f, -0.10f, 0.24f);
-        glRotatef(s*12.f, 0.f, 0.f, 1.f);               // flare outward at the bottom
-        glScalef(0.62f, 1.60f, 0.95f);
-        drawSphere(0.22f, 12, 10);
+        glTranslatef(s*0.33f, -0.04f, 0.19f);           // sit on the side of the cheek
+        glRotatef(s*14.f, 0.f, 0.f, 1.f);               // flare to follow the jawline
+        glPushMatrix(); glScalef(0.55f, 1.35f, 0.90f); drawSphere(0.20f, 12, 10); glPopMatrix();  // chop body
+        glPushMatrix();                                 // pointed tip tapering to the jaw
+        glTranslatef(0.f, -0.26f, 0.02f);
+        glRotatef(180.f, 1.f, 0.f, 0.f);                // wedge tip points down
+        drawWedgePrism(0.15f, 0.18f, 0.16f);
+        glPopMatrix();
         glPopMatrix();
     }
-    // jaw/chin band joining the chops under the face
-    glColor3fv(HAIR);
-    glPushMatrix(); glTranslatef(0.f, -0.27f, 0.26f); glScalef(1.7f, 0.55f, 0.95f); drawSphere(0.20f, 14, 10); glPopMatrix();
 
     // Eyes — large round black eyes, sitting proud of the face surface
     glColor3f(0.06f, 0.05f, 0.05f);
@@ -187,6 +191,14 @@ void Wolverine::draw() {
     glTranslatef(x, 0.f, z);
     glRotatef(facingAngle, 0.f, 1.f, 0.f);
 
+    if (rollTimer > 0.f) {                       // dodge-roll tumble about the forward axis
+        float t    = 1.f - rollTimer / ROLL_DUR;
+        float lift = sinf((t > 1.f ? 1.f : t) * 3.14159265f) * ROLL_HOP;
+        glTranslatef(0.f, ROLL_PIVOT_Y + lift, 0.f);
+        glRotatef(rollAngle, 0.f, 0.f, 1.f);
+        glTranslatef(0.f, -ROLL_PIVOT_Y, 0.f);
+    }
+
     drawLegs();
     drawTorso();
     drawArm(-1);
@@ -216,7 +228,7 @@ CharEvent Wolverine::tick(float dt, Character& other) {
         float u = phaseTimer / ACTIVE_SLASH;
         clawExtend = 1.f;
         armPitch   = CLAW_SLASH_LOW + (CLAW_SLASH_HIGH - CLAW_SLASH_LOW) * u;  // sweep up
-        if (!hitRegistered && inHitRange(other)) {
+        if (!hitRegistered && inHitRange(other) && !other.rolling()) {  // roll dodges (i-frames)
             other.applyDamage(DMG_SLASH);
             hitRegistered = true; ev.hitLanded = true; ev.doImpactFlash = true;
             ev.addEmit(other.x, 1.2f, other.z, 1.f, 0.95f, 0.7f, 20, 4.f);

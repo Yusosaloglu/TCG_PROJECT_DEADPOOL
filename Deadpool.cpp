@@ -255,6 +255,14 @@ void Deadpool::draw() {
     glTranslatef(x, 0.f, z);
     glRotatef(facingAngle, 0.f, 1.f, 0.f);
 
+    if (rollTimer > 0.f) {                       // dodge-roll tumble about the forward axis
+        float t    = 1.f - rollTimer / ROLL_DUR;
+        float lift = sinf((t > 1.f ? 1.f : t) * 3.14159265f) * ROLL_HOP;
+        glTranslatef(0.f, ROLL_PIVOT_Y + lift, 0.f);
+        glRotatef(rollAngle, 0.f, 0.f, 1.f);
+        glTranslatef(0.f, -ROLL_PIVOT_Y, 0.f);
+    }
+
     drawLegs();
     drawTorso();
     drawBackGear();
@@ -285,7 +293,7 @@ CharEvent Deadpool::tick(float dt, Character& other) {
     case SKILL1_ACTIVE: {
         float u = phaseTimer / ACTIVE_KATA;
         kataYaw = KATA_SLASH_YAW - 2.f * KATA_SLASH_YAW * u;   // sweep +yaw → -yaw (L→R)
-        if (!hitRegistered && inHitRange(other)) {
+        if (!hitRegistered && inHitRange(other) && !other.rolling()) {  // roll dodges (i-frames)
             other.applyDamage(DMG_KATANA);
             hitRegistered = true; ev.hitLanded = true; ev.doImpactFlash = true;
             ev.addEmit(other.x, 1.2f, other.z, 1.f, 0.55f, 0.1f, 20, 4.f);
@@ -322,7 +330,7 @@ CharEvent Deadpool::tick(float dt, Character& other) {
 
             ev.addEmit(tracerSx, tracerSy, tracerSz, 1.f, 0.85f, 0.3f, 14, 5.f);  // muzzle flash
 
-            if (inCone(other, GUN_RANGE, GUN_ANGLE_TOL)) {                         // hitscan
+            if (inCone(other, GUN_RANGE, GUN_ANGLE_TOL) && !other.rolling()) {      // hitscan (roll dodges)
                 other.applyDamage(DMG_GUN);
                 ev.hitLanded = true; ev.doImpactFlash = true;
                 ev.addEmit(other.x, 1.2f, other.z, 0.7f, 0.05f, 0.05f, 18, 4.f);  // blood

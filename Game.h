@@ -34,7 +34,6 @@ private:
 
     void moveCharacter(Character& ch,
                        unsigned char fwd, unsigned char back,
-                       unsigned char left, unsigned char right,
                        unsigned char turnL, unsigned char turnR,
                        float dt);
 

@@ -17,6 +17,12 @@ constexpr float PLAYER_SPEED   = 3.f;    // world units per second
 constexpr float PLAYER_TURN    = 90.f;   // degrees per second
 constexpr float MIN_SEPARATION = 1.2f;   // characters can't overlap closer than this
 
+// Dodge roll (lateral; replaces strafing — A/D for Wolverine, J/L for Deadpool)
+constexpr float ROLL_DUR     = 0.45f;    // seconds for one full roll
+constexpr float ROLL_SPEED   = 7.0f;     // lateral units/second during the roll
+constexpr float ROLL_PIVOT_Y = 1.05f;    // body-centre height the tumble pivots around
+constexpr float ROLL_HOP     = 0.5f;     // peak hop mid-roll (keeps the head off the ground)
+
 // Combat
 constexpr float HIT_RANGE      = 2.2f;   // world units
 constexpr float HIT_ANGLE_TOL  = 45.f;   // half-cone degrees from facing direction

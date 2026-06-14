@@ -103,9 +103,11 @@ void Game::tick() {
 
     if (gameState != GameState::FIGHTING) return;
 
-    // Movement
-    moveCharacter(p1, 'w','s','a','d','q','e', dt);
-    moveCharacter(p2, 'i','k','j','l','u','o', dt);
+    // Movement (forward/back + turn; lateral is the dodge roll)
+    moveCharacter(p1, 'w','s','q','e', dt);
+    moveCharacter(p2, 'i','k','u','o', dt);
+    p1.updateRoll(dt);
+    p2.updateRoll(dt);
 
     // Skill ticks (animation + hit detection → events)
     CharEvent e1 = p1.tick(dt, p2);
@@ -156,6 +158,10 @@ void Game::keyDown(unsigned char k, int, int) {
         if (k == 'x') p1.startSkill2();
         if (k == 'n') p2.startSkill1();
         if (k == 'm') p2.startSkill2();
+        if (k == 'a') p1.startRoll(+1);   // Wolverine roll left
+        if (k == 'd') p1.startRoll(-1);   // Wolverine roll right
+        if (k == 'j') p2.startRoll(+1);   // Deadpool roll left
+        if (k == 'l') p2.startRoll(-1);   // Deadpool roll right
     }
     if (k == 'r' && gameState == GameState::GAME_OVER)
         resetMatch();
@@ -167,11 +173,10 @@ void Game::keyUp(unsigned char k, int, int) {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 void Game::moveCharacter(Character& ch,
-                         unsigned char fwd,  unsigned char back,
-                         unsigned char left, unsigned char right,
-                         unsigned char tL,   unsigned char tR,
+                         unsigned char fwd, unsigned char back,
+                         unsigned char tL,  unsigned char tR,
                          float dt) {
-    if (!ch.alive) return;
+    if (!ch.alive || ch.rolling()) return;   // a roll drives its own movement
 
     // Turn: flipped so left/right match the on-screen direction under this camera
     if (keyState[tL]) ch.facingAngle += PLAYER_TURN * dt;
@@ -180,11 +185,9 @@ void Game::moveCharacter(Character& ch,
     float rad = ch.facingAngle * (float)M_PI / 180.f;
     float spd = PLAYER_SPEED * dt;
 
+    // Forward / back only — no strafing (lateral movement is the dodge roll)
     if (keyState[fwd])  { ch.x += sinf(rad)*spd; ch.z += cosf(rad)*spd; }
     if (keyState[back]) { ch.x -= sinf(rad)*spd; ch.z -= cosf(rad)*spd; }
-    // Strafe: flipped to match on-screen left/right
-    if (keyState[left]) { ch.x += cosf(rad)*spd; ch.z -= sinf(rad)*spd; }
-    if (keyState[right]){ ch.x -= cosf(rad)*spd; ch.z += sinf(rad)*spd; }
 
     ch.x = clampf(ch.x, -ARENA_HALF, ARENA_HALF);
     ch.z = clampf(ch.z, -ARENA_HALF, ARENA_HALF);
