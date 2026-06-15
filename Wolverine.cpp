@@ -120,15 +120,15 @@ void Wolverine::drawHead() {
     // Thin top hair cap to connect back hair to peaks without adding excessive height in the center
     glPushMatrix();
     glTranslatef(0.f, 0.25f, -0.05f);
-    glScalef(1.02f, 0.35f, 0.80f);
+    glScalef(1.02f, 0.50f, 0.80f);         // taller Y to cover top-center scalp
     drawSphere(0.48f, 16, 12);
     glPopMatrix();
 
     // Side hair volume that flows down behind the temples, connecting top hair to mutton chops
     for (int s = -1; s <= 1; s += 2) {
         glPushMatrix();
-        glTranslatef(s * 0.38f, 0.06f, 0.08f);
-        glScalef(0.6f, 1.4f, 0.9f);
+        glTranslatef(s * 0.44f, 0.08f, 0.04f); // shifted outward (0.44f) and forward
+        glScalef(0.8f, 1.5f, 1.0f);            // wider and taller to merge seamlessly
         drawSphere(0.18f, 12, 10);
         glPopMatrix();
     }
