@@ -103,49 +103,53 @@ void Wolverine::drawArm(int side) {
     glPopMatrix();
 }
 
-// ── Head (angular voxel Wolverine: gull-wing hair, muttonchops, scowl) ────────
+// ── Head (rounded-cube Wolverine: gull-wing hair, muttonchops, scowl) ─────────
 void Wolverine::drawHead() {
     glPushMatrix();
     glTranslatef(0.f, 1.62f, 0.f);
 
-    // ── 1. HAIR: The Winged Silhouette ────────────────────────────────────────
+    // ── 1. HAIR: The Winged Silhouette (rounded-cube volumes + angular peaks) ──
 
     glColor3fv(HAIR);
 
-    // Back hair mass — wide, flat box hugging the rear of the skull
+    // Back hair mass — rounded-cube sphere, wider than tall, slightly squarish
     glPushMatrix();
-    glTranslatef(0.f, 0.12f, -0.22f);
-    drawBox(0.92f, 0.70f, 0.52f);
+    glTranslatef(0.f, 0.12f, -0.14f);
+    glScalef(1.10f, 0.82f, 0.78f);
+    drawSphere(0.54f, 18, 16);
     glPopMatrix();
 
-    // Top hair cap — covers the crown but stays LOW in the centre (the dip)
+    // Top hair cap — flattened sphere sitting on top, LOW in the centre (the dip)
     glPushMatrix();
-    glTranslatef(0.f, 0.38f, -0.04f);
-    drawBox(0.80f, 0.14f, 0.60f);
+    glTranslatef(0.f, 0.36f, -0.04f);
+    glScalef(1.04f, 0.28f, 0.86f);
+    drawSphere(0.50f, 16, 12);
     glPopMatrix();
 
-    // Side hair panels — fills temple area, connects cap to sideburns
+    // Side hair volumes — rounded panels filling the temple area
     for (int s = -1; s <= 1; s += 2) {
         glPushMatrix();
-        glTranslatef(s * 0.42f, 0.10f, 0.02f);
-        drawBox(0.22f, 0.64f, 0.56f);
+        glTranslatef(s * 0.40f, 0.10f, 0.02f);
+        glScalef(0.50f, 1.20f, 0.90f);
+        drawSphere(0.24f, 14, 12);
         glPopMatrix();
     }
 
-    // Front hairline — angular strip across the forehead
+    // Front hairline — rounded strip across the forehead
     glPushMatrix();
     glTranslatef(0.f, 0.26f, 0.30f);
-    drawBox(0.78f, 0.24f, 0.14f);
+    glScalef(1.50f, 0.50f, 0.60f);
+    drawSphere(0.22f, 14, 12);
     glPopMatrix();
 
-    // ── Hair Wings: two dramatic swept-back peak clusters per side ─────────
+    // ── Hair Wings: angular wedge peaks (kept sharp for the silhouette) ────────
 
     for (int s = -1; s <= 1; s += 2) {
         // Primary wing — large wedge flaring outward and sweeping back
         glPushMatrix();
         glTranslatef(s * 0.36f, 0.40f, -0.06f);
-        glRotatef(s * 32.f, 0.f, 0.f, 1.f);    // outward flare
-        glRotatef(-20.f, 1.f, 0.f, 0.f);       // backward sweep
+        glRotatef(s * 32.f, 0.f, 0.f, 1.f);
+        glRotatef(-20.f, 1.f, 0.f, 0.f);
         drawWedgePrism(0.30f, 0.52f, 0.32f);
         glPopMatrix();
 
@@ -172,30 +176,33 @@ void Wolverine::drawHead() {
     drawWedgePrism(0.14f, 0.18f, 0.10f);
     glPopMatrix();
 
-    // ── 2. FACE: Peach skin sphere ────────────────────────────────────────────
+    // ── 2. FACE: Peach skin sphere (slightly squarish like Deadpool's rounded-cube) ──
 
     glColor3fv(SKIN);
     glPushMatrix();
     glTranslatef(0.f, -0.02f, 0.05f);
+    glScalef(1.04f, 1.02f, 0.96f);         // slightly wider than deep = squarish jaw
     drawSphere(0.47f, 18, 16);
     glPopMatrix();
 
-    // ── 3. MUTTONCHOPS: Dark sideburns framing the jaw ────────────────────────
+    // ── 3. MUTTONCHOPS: Rounded sideburns framing the jaw ─────────────────────
 
     glColor3fv(HAIR);
     for (int s = -1; s <= 1; s += 2) {
-        // Upper cheek block — sits on the cheekbone, merges into side hair
+        // Upper cheek — rounded volume merging into side hair
         glPushMatrix();
-        glTranslatef(s * 0.34f, -0.02f, 0.26f);
+        glTranslatef(s * 0.34f, -0.02f, 0.24f);
         glRotatef(s * 8.f, 0.f, 0.f, 1.f);
-        drawBox(0.18f, 0.28f, 0.22f);
+        glScalef(0.80f, 1.30f, 0.85f);
+        drawSphere(0.16f, 12, 10);
         glPopMatrix();
 
-        // Mid-jaw block — extends the sideburn down
+        // Mid-jaw volume — extends the sideburn down
         glPushMatrix();
         glTranslatef(s * 0.30f, -0.18f, 0.30f);
         glRotatef(s * 6.f, 0.f, 0.f, 1.f);
-        drawBox(0.16f, 0.22f, 0.20f);
+        glScalef(0.75f, 1.10f, 0.80f);
+        drawSphere(0.14f, 10, 8);
         glPopMatrix();
 
         // Lower jaw taper — wedge narrowing toward the mouth
@@ -224,7 +231,7 @@ void Wolverine::drawHead() {
         // Main brow bar — thick, sits right on top of the eye, angled steeply
         glPushMatrix();
         glTranslatef(s * 0.16f, 0.11f, 0.47f);
-        glRotatef(s * -26.f, 0.f, 0.f, 1.f);   // steep inner-down angle
+        glRotatef(s * -26.f, 0.f, 0.f, 1.f);
         drawBox(0.22f, 0.07f, 0.06f);
         glPopMatrix();
 

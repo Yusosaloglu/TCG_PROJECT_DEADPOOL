@@ -277,7 +277,7 @@ void Deadpool::drawHead() {
         glPushMatrix();
         glTranslatef(s*0.20f, 0.05f, 0.45f);
         glRotatef(s*20.f, 0.f, 0.f, 1.f);
-        glScalef(0.35f, 0.60f, 0.30f);
+        glScalef(0.65f, 0.60f, 0.60f);
         drawSphere(0.12f, 12, 10);
         glPopMatrix();
     }
