@@ -21,6 +21,8 @@ static void popMetal() {
 // Palette
 static const float YEL[3]  = {0.92f, 0.76f, 0.10f};  // X-suit yellow
 static const float NAVY[3] = {0.12f, 0.16f, 0.46f};  // X-suit blue
+static const float SKIN[3] = {0.95f, 0.79f, 0.66f};
+static const float HAIR[3] = {0.06f, 0.06f, 0.08f};
 
 // ── Constructor ───────────────────────────────────────────────────────────────
 Wolverine::Wolverine() {
@@ -101,70 +103,56 @@ void Wolverine::drawArm(int side) {
     glPopMatrix();
 }
 
-// ── One curved navy horn, built from tapering segments that bend up-and-out ────
-// s = +1 right horn, -1 left.  Each segment rotates a little further outward so
-// the chain reads as a smooth curved blade (a single wedge can't curve).
-static void drawHorn(int s) {
-    glPushMatrix();
-    glTranslatef(s*0.30f, 0.18f, -0.05f);    // anchor at the upper temple
-    glRotatef(-s*20.f, 0.f, 0.f, 1.f);       // initial up-and-out lean
-    glRotatef(-6.f,    1.f, 0.f, 0.f);       // slight forward rake
-
-    glColor3fv(NAVY);
-    float w = 0.19f, d = 0.15f, seg = 0.16f;
-    for (int i = 0; i < 5; ++i) {
-        drawBox(w, seg, d);
-        glTranslatef(0.f, seg*0.9f, 0.f);    // climb up the horn
-        glRotatef(-s*6.f, 0.f, 0.f, 1.f);    // progressive outward curl
-        glRotatef(1.5f,   1.f, 0.f, 0.f);    // gentle forward bend at the tips
-        w *= 0.80f; d *= 0.84f;              // taper toward the point
-    }
-    drawWedgePrism(w*1.6f, seg*1.8f, d*1.3f); // sharp tip
-    glPopMatrix();
-}
-
-// ── Head: Wolverine yellow-and-navy cowl mask (Deadpool & Wolverine design) ───
+// ── Head (big peach face + black swept hair, peaks, sideburns, brows, eyes) ────
 void Wolverine::drawHead() {
     glPushMatrix();
     glTranslatef(0.f, 1.62f, 0.f);
 
-    // Yellow cowl — slightly flattened front-to-back so the face reads as a
-    // panel rather than a smooth ball
-    glColor3fv(YEL);
-    glPushMatrix(); glScalef(1.02f, 1.04f, 0.92f); drawSphere(0.50f, 22, 18); glPopMatrix();
+    glColor3fv(HAIR);                                   // hair volume (top/back/sides)
+    glPushMatrix(); glTranslatef(0.f, 0.12f, -0.10f); drawSphere(0.52f, 18, 16); glPopMatrix();
 
-    // Navy eye-mask panel spanning both eyes and the temples (the dark "face")
-    glColor3fv(NAVY);
-    glPushMatrix(); glTranslatef(0.f, 0.05f, 0.38f); glScalef(1.78f, 0.98f, 0.55f); drawSphere(0.18f, 18, 14); glPopMatrix();
+    glColor3fv(SKIN);                                   // peach face (pokes out front)
+    glPushMatrix(); glTranslatef(0.f, -0.02f, 0.05f); drawSphere(0.47f, 18, 16); glPopMatrix();
 
-    // Navy brow peaks sweeping from the outer eyes up toward the horn roots
-    glColor3fv(NAVY);
+    glColor3fv(HAIR);                                   // two pointed hair peaks
     for (int s = -1; s <= 1; s += 2) {
         glPushMatrix();
-        glTranslatef(s*0.28f, 0.18f, 0.35f);
-        glRotatef(-s*42.f, 0.f, 0.f, 1.f);
-        drawWedgePrism(0.14f, 0.26f, 0.13f);
+        glTranslatef(s*0.24f, 0.34f, -0.08f);
+        glRotatef(s*22.f, 0.f, 0.f, 1.f);
+        glRotatef(-18.f,   1.f, 0.f, 0.f);
+        drawWedgePrism(0.20f, 0.34f, 0.18f);
         glPopMatrix();
     }
 
-    // Big curved navy horns
-    drawHorn( 1);
-    drawHorn(-1);
-
-    // Yellow widow's-peak — points down the centre, splitting the navy brow
-    glColor3fv(YEL);
-    glPushMatrix(); glTranslatef(0.f, 0.21f, 0.45f); glRotatef(180.f, 0.f, 0.f, 1.f); drawWedgePrism(0.14f, 0.24f, 0.11f); glPopMatrix();
-
-    // White angular scowling eyes (outer corner high), set on the navy panel
-    glColor3f(0.95f, 0.96f, 0.99f);
+    // Bushy mutton chops — Wolverine's signature wide sideburns from cheekbone to jaw.
+    // Chin stays bare skin; the chops connect upward into the hair volume.
+    glColor3fv(HAIR);
     for (int s = -1; s <= 1; s += 2) {
         glPushMatrix();
-        glTranslatef(s*0.18f, 0.05f, 0.46f);
-        glRotatef(s*26.f, 0.f, 0.f, 1.f);    // outer up / inner down  ( \ / )
-        glScalef(1.1f, 0.46f, 0.30f);
-        drawSphere(0.12f, 12, 10);
+        glTranslatef(s*0.31f, -0.06f, 0.22f);           // sit on cheek surface, well forward
+        glRotatef(s*10.f, 0.f, 0.f, 1.f);               // slight outward flare along jawline
+        // Main chop volume — wide and tall, clearly bushy
+        glPushMatrix(); glScalef(0.90f, 1.60f, 0.80f); drawSphere(0.22f, 12, 10); glPopMatrix();
+        // Secondary puff for fullness — slightly forward and lower
+        glPushMatrix(); glTranslatef(0.f, -0.14f, 0.06f); glScalef(0.75f, 1.0f, 0.70f); drawSphere(0.18f, 10, 8); glPopMatrix();
+        // Pointed tip tapering to the jaw
+        glPushMatrix(); glTranslatef(0.f, -0.32f, 0.02f); glRotatef(180.f, 1.f, 0.f, 0.f); drawWedgePrism(0.13f, 0.20f, 0.14f); glPopMatrix();
         glPopMatrix();
     }
+
+    // Eyes — large round black eyes, sitting proud of the face surface
+    glColor3f(0.06f, 0.05f, 0.05f);
+    for (int s = -1; s <= 1; s += 2) {
+        glPushMatrix(); glTranslatef(s*0.165f, 0.01f, 0.46f); glScalef(1.0f, 1.15f, 0.55f); drawSphere(0.085f, 14, 12); glPopMatrix();
+    }
+    // Thick angled eyebrows — the scowl
+    glColor3f(0.05f, 0.05f, 0.06f);
+    for (int s = -1; s <= 1; s += 2) {
+        glPushMatrix(); glTranslatef(s*0.17f, 0.15f, 0.46f); glRotatef(s*-18.f, 0,0,1); drawBox(0.20f, 0.065f, 0.05f); glPopMatrix();
+    }
+    // Nose
+    glColor3f(0.93f, 0.76f, 0.62f);
+    glPushMatrix(); glTranslatef(0.f, -0.05f, 0.50f); glRotatef(90.f, 1,0,0); drawWedgePrism(0.08f, 0.12f, 0.08f); glPopMatrix();
 
     glPopMatrix();
 }
