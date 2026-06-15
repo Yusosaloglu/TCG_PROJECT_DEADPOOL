@@ -108,7 +108,7 @@ void Wolverine::drawHead() {
     glPushMatrix();
     glTranslatef(0.f, 1.62f, 0.f);
 
-    // 1. Hair Volume (Back and top cap, designed to create a W-shape hairline without covering eyes)
+    // 1. Hair Volume (Back, top cap, and side connections to build a unified hairstyle)
     glColor3fv(HAIR);
     // Back hair volume: flatter in Z
     glPushMatrix();
@@ -124,16 +124,25 @@ void Wolverine::drawHead() {
     drawSphere(0.48f, 16, 12);
     glPopMatrix();
 
-    // Front hairline block connecting the side wings
+    // Side hair volume that flows down behind the temples, connecting top hair to mutton chops
+    for (int s = -1; s <= 1; s += 2) {
+        glPushMatrix();
+        glTranslatef(s * 0.38f, 0.06f, 0.08f);
+        glScalef(0.6f, 1.4f, 0.9f);
+        drawSphere(0.18f, 12, 10);
+        glPopMatrix();
+    }
+
+    // Front hairline block connecting the side wings (covers forehead skin)
     glPushMatrix();
-    glTranslatef(0.f, 0.24f, 0.28f);
-    glScalef(1.4f, 0.4f, 0.8f);
+    glTranslatef(0.f, 0.22f, 0.28f);
+    glScalef(1.4f, 0.5f, 0.8f);
     drawSphere(0.20f, 12, 10);
     glPopMatrix();
 
-    // Widow's peak at the center of the forehead
+    // Widow's peak at the center of the forehead (points down)
     glPushMatrix();
-    glTranslatef(0.f, 0.18f, 0.42f);
+    glTranslatef(0.f, 0.14f, 0.44f);
     glRotatef(180.f, 0.f, 0.f, 1.f); // point down
     drawWedgePrism(0.12f, 0.15f, 0.08f);
     glPopMatrix();
@@ -141,10 +150,10 @@ void Wolverine::drawHead() {
     // Two main large swept-up hair peaks (the W-shape horns) — moved outward and flared
     for (int s = -1; s <= 1; s += 2) {
         glPushMatrix();
-        glTranslatef(s * 0.32f, 0.28f, 0.05f);
+        glTranslatef(s * 0.32f, 0.28f, -0.05f); // slightly further back
         glRotatef(s * 35.f, 0.f, 0.f, 1.f);   // flare outward dramatically
-        glRotatef(-8.f, 1.f, 0.f, 0.f);       // sweep backward slightly
-        drawWedgePrism(0.35f, 0.50f, 0.30f);  // larger, wider wedges
+        glRotatef(-25.f, 1.f, 0.f, 0.f);      // sweep backward dramatically
+        drawWedgePrism(0.35f, 0.50f, 0.35f);  // larger, wider wedges
         glPopMatrix();
     }
 
@@ -165,27 +174,27 @@ void Wolverine::drawHead() {
     glColor3fv(HAIR);
     for (int s = -1; s <= 1; s += 2) {
         glPushMatrix();
-        glTranslatef(s * 0.30f, -0.06f, 0.20f);
-        glRotatef(s * 15.f, 0.f, 0.f, 1.f);     // flare outward along the jawline
+        glTranslatef(s * 0.32f, -0.08f, 0.16f);
+        glRotatef(s * 10.f, 0.f, 0.f, 1.f);     // flare outward along the jawline
 
         // Main sideburn volume
         glPushMatrix();
-        glScalef(1.1f, 1.5f, 0.9f);
-        drawSphere(0.20f, 12, 10);
+        glScalef(1.2f, 1.6f, 1.0f);
+        drawSphere(0.18f, 12, 10);
         glPopMatrix();
 
         // Lower cheek/jaw volume
         glPushMatrix();
-        glTranslatef(s * -0.04f, -0.15f, 0.08f);
-        glScalef(0.9f, 1.1f, 0.8f);
-        drawSphere(0.16f, 10, 8);
+        glTranslatef(s * -0.05f, -0.16f, 0.08f);
+        glScalef(1.0f, 1.2f, 0.9f);
+        drawSphere(0.15f, 10, 8);
         glPopMatrix();
 
         // Tapering tip at the bottom of the jaw
         glPushMatrix();
         glTranslatef(s * -0.06f, -0.28f, 0.04f);
         glRotatef(180.f, 1.f, 0.f, 0.f);
-        drawWedgePrism(0.12f, 0.18f, 0.12f);
+        drawWedgePrism(0.12f, 0.16f, 0.12f);
         glPopMatrix();
 
         glPopMatrix();
@@ -197,10 +206,10 @@ void Wolverine::drawHead() {
         glPushMatrix(); glTranslatef(s*0.165f, 0.01f, 0.46f); glScalef(1.0f, 1.15f, 0.55f); drawSphere(0.085f, 14, 12); glPopMatrix();
     }
 
-    // 5. Thick angled eyebrows — the scowl
+    // 5. Thick angled eyebrows — the scowl (lowered to sit right above the eyes)
     glColor3f(0.05f, 0.05f, 0.06f);
     for (int s = -1; s <= 1; s += 2) {
-        glPushMatrix(); glTranslatef(s*0.17f, 0.15f, 0.46f); glRotatef(s*-18.f, 0,0,1); drawBox(0.20f, 0.065f, 0.05f); glPopMatrix();
+        glPushMatrix(); glTranslatef(s*0.17f, 0.12f, 0.46f); glRotatef(s*-22.f, 0,0,1); drawBox(0.20f, 0.065f, 0.05f); glPopMatrix();
     }
 
     // 6. Nose
