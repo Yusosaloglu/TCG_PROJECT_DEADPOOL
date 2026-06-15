@@ -103,54 +103,106 @@ void Wolverine::drawArm(int side) {
     glPopMatrix();
 }
 
-// ── Head (big peach face + black swept hair, peaks, sideburns, brows, eyes) ────
+// ── Head (big peach face + W-shape swept hair, peaks, beard, brows, eyes) ────
 void Wolverine::drawHead() {
     glPushMatrix();
     glTranslatef(0.f, 1.62f, 0.f);
 
-    glColor3fv(HAIR);                                   // hair volume (top/back/sides)
+    // 1. Hair Volume (Back, Top, and Front hairline to create the W-shape)
+    glColor3fv(HAIR);
+    // Back hair volume
     glPushMatrix(); glTranslatef(0.f, 0.12f, -0.10f); drawSphere(0.52f, 18, 16); glPopMatrix();
 
-    glColor3fv(SKIN);                                   // peach face (pokes out front)
+    // Top hair volume
+    glPushMatrix();
+    glTranslatef(0.f, 0.28f, 0.08f);
+    glScalef(1.08f, 0.90f, 1.10f);
+    drawSphere(0.48f, 18, 16);
+    glPopMatrix();
+
+    // Front hair hairline/bangs
+    glPushMatrix();
+    glTranslatef(0.f, 0.22f, 0.36f);
+    glScalef(1.6f, 0.6f, 1.0f);
+    drawSphere(0.18f, 14, 12);
+    glPopMatrix();
+
+    // Widow's peak at the center of the forehead
+    glPushMatrix();
+    glTranslatef(0.f, 0.18f, 0.44f);
+    glRotatef(180.f, 0.f, 0.f, 1.f); // point down
+    drawWedgePrism(0.12f, 0.16f, 0.08f);
+    glPopMatrix();
+
+    // Two main large swept-up hair peaks (the W-shape horns)
+    for (int s = -1; s <= 1; s += 2) {
+        glPushMatrix();
+        glTranslatef(s * 0.28f, 0.38f, 0.14f);
+        glRotatef(s * 25.f, 0.f, 0.f, 1.f);   // flare outward
+        glRotatef(-10.f, 1.f, 0.f, 0.f);      // sweep backward slightly
+        glScalef(1.0f, 1.2f, 1.0f);           // make them taller
+        drawWedgePrism(0.24f, 0.44f, 0.24f);
+        glPopMatrix();
+    }
+
+    // Two secondary outer hair sweeps for a messy, layered look
+    for (int s = -1; s <= 1; s += 2) {
+        glPushMatrix();
+        glTranslatef(s * 0.38f, 0.24f, 0.08f);
+        glRotatef(s * 35.f, 0.f, 0.f, 1.f);
+        glRotatef(-15.f, 1.f, 0.f, 0.f);
+        drawWedgePrism(0.18f, 0.30f, 0.18f);
+        glPopMatrix();
+    }
+
+    // 2. Peach Face (pokes out front)
+    glColor3fv(SKIN);
     glPushMatrix(); glTranslatef(0.f, -0.02f, 0.05f); drawSphere(0.47f, 18, 16); glPopMatrix();
 
-    glColor3fv(HAIR);                                   // two pointed hair peaks
-    for (int s = -1; s <= 1; s += 2) {
-        glPushMatrix();
-        glTranslatef(s*0.24f, 0.34f, -0.08f);
-        glRotatef(s*22.f, 0.f, 0.f, 1.f);
-        glRotatef(-18.f,   1.f, 0.f, 0.f);
-        drawWedgePrism(0.20f, 0.34f, 0.18f);
-        glPopMatrix();
-    }
-
-    // Bushy mutton chops — Wolverine's signature wide sideburns from cheekbone to jaw.
-    // Chin stays bare skin; the chops connect upward into the hair volume.
+    // 3. Famous Full Rugged Beard (wraps cheeks, jaw, and chin)
     glColor3fv(HAIR);
     for (int s = -1; s <= 1; s += 2) {
+        // Cheek/Mutton chops volume
         glPushMatrix();
-        glTranslatef(s*0.31f, -0.06f, 0.22f);           // sit on cheek surface, well forward
-        glRotatef(s*10.f, 0.f, 0.f, 1.f);               // slight outward flare along jawline
-        // Main chop volume — wide and tall, clearly bushy
-        glPushMatrix(); glScalef(0.90f, 1.60f, 0.80f); drawSphere(0.22f, 12, 10); glPopMatrix();
-        // Secondary puff for fullness — slightly forward and lower
-        glPushMatrix(); glTranslatef(0.f, -0.14f, 0.06f); glScalef(0.75f, 1.0f, 0.70f); drawSphere(0.18f, 10, 8); glPopMatrix();
-        // Pointed tip tapering to the jaw
-        glPushMatrix(); glTranslatef(0.f, -0.32f, 0.02f); glRotatef(180.f, 1.f, 0.f, 0.f); drawWedgePrism(0.13f, 0.20f, 0.14f); glPopMatrix();
+        glTranslatef(s * 0.28f, -0.12f, 0.28f);
+        glScalef(1.1f, 1.3f, 1.0f);
+        drawSphere(0.18f, 12, 10);
+        glPopMatrix();
+
+        // Jaw connection to chin
+        glPushMatrix();
+        glTranslatef(s * 0.16f, -0.26f, 0.36f);
+        drawSphere(0.14f, 12, 10);
         glPopMatrix();
     }
 
-    // Eyes — large round black eyes, sitting proud of the face surface
+    // Chin beard piece
+    glPushMatrix();
+    glTranslatef(0.f, -0.30f, 0.38f);
+    glScalef(1.4f, 1.0f, 1.1f);
+    drawSphere(0.14f, 12, 10);
+    glPopMatrix();
+
+    // Stubble moustache under the nose
+    glPushMatrix();
+    glTranslatef(0.f, -0.12f, 0.44f);
+    glScalef(1.3f, 0.5f, 0.6f);
+    drawSphere(0.10f, 10, 8);
+    glPopMatrix();
+
+    // 4. Eyes — large round black eyes, sitting proud of the face surface
     glColor3f(0.06f, 0.05f, 0.05f);
     for (int s = -1; s <= 1; s += 2) {
         glPushMatrix(); glTranslatef(s*0.165f, 0.01f, 0.46f); glScalef(1.0f, 1.15f, 0.55f); drawSphere(0.085f, 14, 12); glPopMatrix();
     }
-    // Thick angled eyebrows — the scowl
+
+    // 5. Thick angled eyebrows — the scowl
     glColor3f(0.05f, 0.05f, 0.06f);
     for (int s = -1; s <= 1; s += 2) {
         glPushMatrix(); glTranslatef(s*0.17f, 0.15f, 0.46f); glRotatef(s*-18.f, 0,0,1); drawBox(0.20f, 0.065f, 0.05f); glPopMatrix();
     }
-    // Nose
+
+    // 6. Nose
     glColor3f(0.93f, 0.76f, 0.62f);
     glPushMatrix(); glTranslatef(0.f, -0.05f, 0.50f); glRotatef(90.f, 1,0,0); drawWedgePrism(0.08f, 0.12f, 0.08f); glPopMatrix();
 
