@@ -131,26 +131,61 @@ void Deadpool::drawKatana(float uprightDeg, bool extend) {
     glPopMatrix();
 }
 
-// ── Desert Eagle (hand-built pistol; barrel points down the arm = aim direction) ─
+// ── Desert Eagle (hand-built hand-cannon) ──────────────────────────────────────
+// After the 180° flip the local frame is: +Y = forward (aim), +Z = down,
+// +X = sideways.  Built as an L-shape — long slide/barrel forward, grip hanging
+// down — so it always reads as a pistol (the old straight rod looked like a knife).
 void Deadpool::drawDesertEagle() {
+    const float GM[3] = {0.40f, 0.41f, 0.44f};   // gunmetal steel
+    const float BK[3] = {0.09f, 0.09f, 0.10f};   // black grip / furniture
+
     glPushMatrix();
-    glRotatef(180.f, 1.f, 0.f, 0.f);     // align with the katana's "extended" axis (forward)
+    glRotatef(180.f, 1.f, 0.f, 0.f);             // +Y → forward (aim), +Z → down
 
-    glColor3fv(BLACK);                   // grip sits in the fist, angled back
-    glPushMatrix(); glTranslatef(0.f, 0.0f, -0.04f); glRotatef(12.f, 1,0,0); drawBox(0.07f, 0.18f, 0.05f); glPopMatrix();
+    // ── Grip: rakes down (+Z) and back (-Y), wrapped by the fist ──
+    glPushMatrix();
+        glTranslatef(0.f, -0.06f, 0.15f);
+        glRotatef(14.f, 1.f, 0.f, 0.f);                                  // rake backward
+        glColor3fv(BK);
+        drawBox(0.11f, 0.13f, 0.30f);                                    // long along +Z (down)
+        glColor3f(0.17f, 0.17f, 0.18f);                                  // side grip panels
+        glPushMatrix(); glTranslatef( 0.058f, 0.f, 0.02f); drawBox(0.013f, 0.10f, 0.22f); glPopMatrix();
+        glPushMatrix(); glTranslatef(-0.058f, 0.f, 0.02f); drawBox(0.013f, 0.10f, 0.22f); glPopMatrix();
+    glPopMatrix();
 
-    glColor3f(0.16f, 0.16f, 0.18f);      // frame / trigger housing
-    glPushMatrix(); glTranslatef(0.f, 0.12f, 0.02f); drawBox(0.085f, 0.12f, 0.10f); glPopMatrix();
+    // ── Frame / receiver: chunky block linking grip to slide ──
+    glColor3fv(GM);
+    glPushMatrix(); glTranslatef(0.f, 0.05f, 0.005f); drawBox(0.12f, 0.30f, 0.14f); glPopMatrix();
 
-    pushMetal();                         // slide + muzzle (specular steel)
-    glColor3f(0.80f, 0.82f, 0.88f);
-    glPushMatrix(); glTranslatef(0.f, 0.26f, 0.02f); drawBox(0.085f, 0.34f, 0.075f); glPopMatrix();  // slide
-    glColor3f(0.72f, 0.74f, 0.80f);
-    glPushMatrix(); glTranslatef(0.f, 0.46f, 0.02f); drawBox(0.05f,  0.10f, 0.05f);  glPopMatrix();  // muzzle
+    // ── Trigger guard (squared loop) + trigger ──
+    glColor3fv(BK);
+    glPushMatrix(); glTranslatef(0.f, 0.10f, 0.15f);  drawBox(0.05f, 0.14f, 0.02f); glPopMatrix();  // bottom (runs fwd)
+    glPushMatrix(); glTranslatef(0.f, 0.17f, 0.09f);  drawBox(0.05f, 0.02f, 0.13f); glPopMatrix();  // front (runs down)
+    glColor3f(0.20f, 0.20f, 0.22f);
+    glPushMatrix(); glTranslatef(0.f, 0.07f, 0.085f); drawBox(0.03f, 0.05f, 0.06f); glPopMatrix();  // trigger
+
+    // ── Slide: the big Desert Eagle top, runs forward (+Y), sits high (-Z) ──
+    pushMetal();
+    glColor3fv(GM);
+    glPushMatrix(); glTranslatef(0.f, 0.21f, -0.07f); drawBox(0.13f, 0.46f, 0.15f); glPopMatrix();
+
+    // ── Barrel rib on top (DE signature) + front & rear sights ──
+    glColor3f(0.32f, 0.33f, 0.36f);
+    glPushMatrix(); glTranslatef(0.f, 0.21f, -0.16f); drawBox(0.06f, 0.46f, 0.04f); glPopMatrix();  // full-length rib
+    glColor3fv(BK);
+    glPushMatrix(); glTranslatef(0.f, 0.40f, -0.19f); drawBox(0.05f, 0.04f, 0.05f); glPopMatrix();  // front sight
+    glPushMatrix(); glTranslatef(0.f, 0.01f, -0.19f); drawBox(0.06f, 0.04f, 0.05f); glPopMatrix();  // rear sight
     popMetal();
 
-    glColor3f(0.20f, 0.20f, 0.22f);      // trigger nub
-    glPushMatrix(); glTranslatef(0.f, 0.02f, 0.06f); drawBox(0.05f, 0.04f, 0.02f); glPopMatrix();
+    // ── Muzzle: squared crown with a dark bore at the very front ──
+    glColor3f(0.24f, 0.24f, 0.26f);
+    glPushMatrix(); glTranslatef(0.f, 0.45f, -0.06f); drawBox(0.11f, 0.06f, 0.15f); glPopMatrix();
+    glColor3f(0.02f, 0.02f, 0.02f);
+    glPushMatrix(); glTranslatef(0.f, 0.49f, -0.06f); drawBox(0.045f, 0.02f, 0.06f); glPopMatrix();  // bore hole
+
+    // ── Hammer at the rear (exposed, as on a real DE) ──
+    glColor3fv(BK);
+    glPushMatrix(); glTranslatef(0.f, -0.05f, -0.08f); glRotatef(-22.f, 1,0,0); drawBox(0.05f, 0.05f, 0.09f); glPopMatrix();
 
     glPopMatrix();
 }
