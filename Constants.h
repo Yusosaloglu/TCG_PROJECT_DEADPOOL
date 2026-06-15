@@ -12,9 +12,9 @@ constexpr float CAMERA_FOV    = 60.f;
 constexpr float NEAR_PLANE    = 0.1f;
 constexpr float FAR_PLANE     = 100.f;
 
-// Movement — Mortal-Kombat style: fighters auto-face each other and only move
-// toward / away along the line between them (the X axis); no strafing, no turning.
+// Movement — each fighter moves in their own facing direction (W/S) and turns (A/D).
 constexpr float PLAYER_SPEED   = 3.f;    // world units per second
+constexpr float PLAYER_TURN    = 90.f;   // degrees per second
 constexpr float MIN_SEPARATION = 1.2f;   // characters can't overlap closer than this
 
 // Combat

@@ -208,7 +208,9 @@ BlindBoxBattle: CMakeFiles/BlindBoxBattle.dir/HUD.cpp.o
 BlindBoxBattle: CMakeFiles/BlindBoxBattle.dir/Game.cpp.o
 BlindBoxBattle: CMakeFiles/BlindBoxBattle.dir/build.make
 BlindBoxBattle: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/OpenGL.framework
+BlindBoxBattle: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/OpenGL.framework
 BlindBoxBattle: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/GLUT.framework
+BlindBoxBattle: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/OpenGL.framework
 BlindBoxBattle: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Cocoa.framework
 BlindBoxBattle: CMakeFiles/BlindBoxBattle.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/tifa/CLionProjects/TCG_PROJECT_DEADPOOL/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable BlindBoxBattle"

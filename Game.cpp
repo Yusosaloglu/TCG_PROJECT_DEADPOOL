@@ -103,13 +103,9 @@ void Game::tick() {
 
     if (gameState != GameState::FIGHTING) return;
 
-    // Movement — slide along X only (Mortal-Kombat style)
-    moveCharacter(p1, 'a','d', dt);
-    moveCharacter(p2, 'j','l', dt);
-
-    // Auto-face: each fighter always turns to look at the other
-    p1.facingAngle = atan2f(p2.x - p1.x, p2.z - p1.z) * 180.f / (float)M_PI;
-    p2.facingAngle = atan2f(p1.x - p2.x, p1.z - p2.z) * 180.f / (float)M_PI;
+    // Movement — each fighter moves in their own facing direction and can turn
+    moveCharacter(p1, 'w','s','a','d', dt);
+    moveCharacter(p2, 'i','k','j','l', dt);
 
     // Skill ticks (animation + hit detection → events)
     CharEvent e1 = p1.tick(dt, p2);
@@ -170,19 +166,22 @@ void Game::keyUp(unsigned char k, int, int) {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-// Mortal-Kombat-style movement: fighters only slide along the X axis (toward or
-// away from each other).  Z is pinned to the fight line; facing is auto-set in tick.
+// Full 3D movement: fighter moves in their own facing direction and can turn in place.
 void Game::moveCharacter(Character& ch,
-                         unsigned char leftKey, unsigned char rightKey,
+                         unsigned char fwdKey,   unsigned char backKey,
+                         unsigned char turnLKey, unsigned char turnRKey,
                          float dt) {
     if (!ch.alive) return;
 
+    float rad = ch.facingAngle * (float)M_PI / 180.f;
     float spd = PLAYER_SPEED * dt;
-    if (keyState[leftKey])  ch.x -= spd;   // screen-left  (-X)
-    if (keyState[rightKey]) ch.x += spd;   // screen-right (+X)
+    if (keyState[fwdKey])   { ch.x += sinf(rad)*spd; ch.z += cosf(rad)*spd; }
+    if (keyState[backKey])  { ch.x -= sinf(rad)*spd; ch.z -= cosf(rad)*spd; }
+    if (keyState[turnLKey]) ch.facingAngle += PLAYER_TURN * dt;
+    if (keyState[turnRKey]) ch.facingAngle -= PLAYER_TURN * dt;
 
     ch.x = clampf(ch.x, -ARENA_HALF, ARENA_HALF);
-    ch.z = 0.f;                            // no depth roaming — stay on the fight line
+    ch.z = clampf(ch.z, -ARENA_HALF, ARENA_HALF);
 }
 
 void Game::resetMatch() {

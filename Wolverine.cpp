@@ -124,21 +124,19 @@ void Wolverine::drawHead() {
         glPopMatrix();
     }
 
-    // Mutton chops — thick pointed sideburns down the cheeks; the chin stays bare
-    // skin.  Reference: the chops connect up to the hair and taper to a point at
-    // the jaw — NOT a full beard.  (The old code joined them with a wide chin band
-    // that buried the lower face in black, which is why he looked so heavily bearded.)
+    // Bushy mutton chops — Wolverine's signature wide sideburns from cheekbone to jaw.
+    // Chin stays bare skin; the chops connect upward into the hair volume.
     glColor3fv(HAIR);
     for (int s = -1; s <= 1; s += 2) {
         glPushMatrix();
-        glTranslatef(s*0.33f, -0.04f, 0.19f);           // sit on the side of the cheek
-        glRotatef(s*14.f, 0.f, 0.f, 1.f);               // flare to follow the jawline
-        glPushMatrix(); glScalef(0.55f, 1.35f, 0.90f); drawSphere(0.20f, 12, 10); glPopMatrix();  // chop body
-        glPushMatrix();                                 // pointed tip tapering to the jaw
-        glTranslatef(0.f, -0.26f, 0.02f);
-        glRotatef(180.f, 1.f, 0.f, 0.f);                // wedge tip points down
-        drawWedgePrism(0.15f, 0.18f, 0.16f);
-        glPopMatrix();
+        glTranslatef(s*0.31f, -0.06f, 0.22f);           // sit on cheek surface, well forward
+        glRotatef(s*10.f, 0.f, 0.f, 1.f);               // slight outward flare along jawline
+        // Main chop volume — wide and tall, clearly bushy
+        glPushMatrix(); glScalef(0.90f, 1.60f, 0.80f); drawSphere(0.22f, 12, 10); glPopMatrix();
+        // Secondary puff for fullness — slightly forward and lower
+        glPushMatrix(); glTranslatef(0.f, -0.14f, 0.06f); glScalef(0.75f, 1.0f, 0.70f); drawSphere(0.18f, 10, 8); glPopMatrix();
+        // Pointed tip tapering to the jaw
+        glPushMatrix(); glTranslatef(0.f, -0.32f, 0.02f); glRotatef(180.f, 1.f, 0.f, 0.f); drawWedgePrism(0.13f, 0.20f, 0.14f); glPopMatrix();
         glPopMatrix();
     }
 

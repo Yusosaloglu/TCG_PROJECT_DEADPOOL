@@ -64,7 +64,7 @@ void HUD::draw(const Character& p1, const Character& p2,
 
     // Controls reminder (small, bottom)
     glColor3f(0.55f, 0.00f, 0.00f);
-    drawString(10.f, 10.f, "P1 Wolverine: A/D move  Z=Claw  X=Heal      P2 Deadpool: J/L move  N=Katana  M=Desert Eagle      R=Restart");
+    drawString(10.f, 10.f, "P1 Wolverine: W/S move  A/D turn  Z=Claw Slash  X=Heal      P2 Deadpool: I/K move  J/L turn  N=Katana  M=Desert Eagle      R=Restart");
 
     // Win overlay
     if (state == GameState::GAME_OVER) {
